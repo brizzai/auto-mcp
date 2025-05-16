@@ -1,0 +1,117 @@
+name: Auto MCP Tests
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "internal/**"
+      - ".github/workflows/auto-mcp-tests.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "internal/**"
+      - ".github/workflows/auto-mcp-tests.yml"
+
+env:
+  GO_VERSION: stable
+  GOLANGCI_LINT_VERSION: latest
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          check-latest: true
+
+      - name: Go Module Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: make deps
+
+      - name: Run tests
+        run: make coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: auto-mcp-code-coverage
+          path: coverage.out
+
+      - name: Comment on PR with coverage report
+        uses: fgrosse/go-coverage-report@v1.2.0
+        if: ${{ github.event_name == 'pull_request' }}
+        continue-on-error: true
+        with:
+          coverage-artifact-name: auto-mcp-code-coverage
+          coverage-file-name: coverage.out
+          root-package: "github.com/brizzai/"
+
+  govulncheck:
+    name: Run Vulnerability Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          check-latest: true
+
+      - name: Go Module Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: make deps
+
+      - name: Run govulncheck
+        uses: golang/govulncheck-action@v1
+        with:
+          go-version-input: 1.24
+          work-dir: .
+
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: ${{ env.GOLANGCI_LINT_VERSION }}
+          working-directory: .
