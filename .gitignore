@@ -85,3 +85,7 @@ logs/
 swagger.json
 swagger.yaml
 dist/
+
+# Examples
+!examples/petshop/config/adjustments.yaml
+!examples/petshop/config/swagger.json

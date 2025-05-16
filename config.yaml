@@ -1,0 +1,20 @@
+server:
+  mode: sse # or stdio
+  port: 8080
+  host: "localhost"
+  timeout: 30s
+
+logging:
+  level: "info"
+  format: "json"
+  color: true
+  disable_stacktrace: false
+  output_path: "logs/auto-mcp.log"
+  append_to_file: true
+  disable_console: false
+
+endpoint:
+  base_url: "http://localhost:3000"
+  auth_type: "bearer"
+  auth_config:
+    token: "123"

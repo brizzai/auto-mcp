@@ -1,0 +1,36 @@
+## this example removed all the DELETE methods and ALL the /user Methods and added a new description to the POST /pet/{petId}/uploadImage method
+descriptions:
+    - path: /pet/{petId}/uploadImage
+      updates:
+        - method: POST
+          new_description: uploads an image to a specifc pet id
+routes:
+    - path: /pet
+      methods:
+        - POST
+        - PUT
+    - path: /store/order
+      methods:
+        - POST
+    - path: /pet/{petId}/uploadImage
+      methods:
+        - POST
+    - path: /pet/findByStatus
+      methods:
+        - GET
+    - path: /pet/{petId}
+      methods:
+        - GET
+        - POST
+    - path: /store/order/{orderId}
+      methods:
+        - GET
+    - path: /pet/findByTags
+      methods:
+        - GET
+    - path: /store/inventory
+      methods:
+        - GET
+    - path: /user/logout
+      methods:
+        - GET
