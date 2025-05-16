@@ -1,0 +1,33 @@
+FROM alpine:latest
+
+# Install CA certificates for HTTPS requests
+RUN apk --no-cache add ca-certificates && \
+    rm -rf /var/cache/apk/*
+
+# Create a special directory for the binary
+RUN mkdir -p /opt/auto-mcp/bin
+
+# Copy the pre-built binary from the build stage to the special directory
+COPY auto-mcp /opt/auto-mcp/bin/
+
+# Copy the config.yaml file
+COPY config.yaml /etc/auto-mcp/config.yaml
+
+# Create a non-root user and group
+RUN addgroup -S app && adduser -S app -G app
+
+# Set the ownership of the binary and config to the non-root user
+RUN mkdir -p /etc/auto-mcp && \
+    chown -R app:app /opt/auto-mcp && \
+    chmod 755 /opt/auto-mcp/bin/auto-mcp && \
+    chown -R app:app /etc/auto-mcp
+
+# Set working directory
+WORKDIR /opt/auto-mcp
+
+# Switch to non-root user
+USER app
+
+# Command to run
+ENTRYPOINT ["/opt/auto-mcp/bin/auto-mcp"]
+CMD ["--help"]

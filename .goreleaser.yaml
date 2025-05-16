@@ -1,0 +1,86 @@
+# https://goreleaser.com
+project_name: auto-mcp
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+builds:
+  - id: auto-mcp
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    main: ./cmd/auto-mcp/main.go
+    binary: auto-mcp
+    ldflags:
+      - -s -w -X github.com/brizzai/auto-mcp/internal/config.version={{.Version}} -X github.com/brizzai/auto-mcp/internal/config.commit={{.Commit}} -X github.com/brizzai/auto-mcp/internal/config.date={{.Date}}
+  - id: mcp-config-builder
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    main: ./cmd/mcp-config-builder/main.go
+    binary: mcp-config-builder
+    ldflags:
+      - -s -w -X github.com/brizzai/auto-mcp/internal/config.version={{.Version}} -X github.com/brizzai/auto-mcp/internal/config.commit={{.Commit}} -X github.com/brizzai/auto-mcp/internal/config.date={{.Date}}
+
+archives:
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of uname.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+    - goos: windows
+      format: zip
+    files:
+      - README.md
+      - LICENSE
+      - config.yaml
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^ci:'
+      - '^chore:'
+      - Merge pull request
+      - Merge branch
+
+dockers:
+  - image_templates:
+    - "ghcr.io/brizzai/auto-mcp:{{ .Version }}"
+    - "ghcr.io/brizzai/auto-mcp:latest"
+    dockerfile: Dockerfile.goreleaser
+    build_flag_templates:
+    - "--pull"
+    - "--label=org.opencontainers.image.created={{.Date}}"
+    - "--label=org.opencontainers.image.name={{.ProjectName}}"
+    - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+    - "--label=org.opencontainers.image.version={{.Version}}"
+    - "--label=org.opencontainers.image.source={{.GitURL}}"
+    extra_files:
+      - config.yaml
