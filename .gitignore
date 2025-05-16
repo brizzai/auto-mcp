@@ -7,12 +7,17 @@
 *.dll
 *.so
 *.dylib
+bin/
+
+# macOS
+.DS_Store
 
 # Test binary, built with `go test -c`
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+coverage.html
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
@@ -23,3 +28,60 @@ go.work.sum
 
 # env file
 .env
+.env.*
+.envrc
+
+# GoLand IDE files
+.idea/*
+# Allow these .idea files
+!.idea/runConfigurations/
+!.idea/dictionaries/
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+!.idea/encodings.xml
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/vcs.xml
+!.idea/go.xml
+!.idea/*.iml
+
+# VS Code settings
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Don't include no keys
+*.pem
+*.key
+*.crt
+*.cert
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+var/
+
+# Debug files
+debug
+__debug_bin
+__debug_bin.*
+
+# Build output
+dist/
+build/
+_output/
+
+# Log files
+*.log
+logs/
+
+# Auto-generated files
+*_gen.go
+*_string.go
+*_easyjson.go
+swagger.json
+swagger.yaml
+dist/
