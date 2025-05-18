@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Go version](https://img.shields.io/github/go-mod/go-version/brizzai/auto-mcp)](https://golang.org/doc/devel/release.html)
 [![Container Registry](https://img.shields.io/badge/container-ghcr.io-blue)](https://github.com/brizzai/auto-mcp/pkgs/container/auto-mcp)
-[![Build Status](https://img.shields.io/github/workflow/status/brizzai/auto-mcp/Go)](https://github.com/brizzai/auto-mcp/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/brizzai/auto-mcp/auto-mcp-tests.yml?branch=master)](https://github.com/brizzai/auto-mcp/actions/workflows/auto-mcp-tests.yml)
 
 Transform any OpenAPI/Swagger definition into a fully-featured **Model Context Protocol (MCP)** server – ready to run locally, inside Claude Desktop, or in the cloud.
 
