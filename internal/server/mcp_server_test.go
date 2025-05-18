@@ -22,7 +22,7 @@ import (
 // TestNewMCPServer_SemiE2E tests the creation and initialization of an MCP server
 // with a real OpenAPI specification but without actually serving requests.
 func TestNewMCPServer_SemiE2E(t *testing.T) {
-	// Get the current working directory 
+	// Get the current working directory
 	cwd, err := os.Getwd()
 	require.NoError(t, err, "Failed to get current working directory")
 
