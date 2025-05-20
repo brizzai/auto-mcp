@@ -20,8 +20,7 @@ _What should happen instead?_
 
 ### Environment (optional)
 - OS:
-- Browser/Device:
-- Version:
+- AutoMCP Version:
 
 ### Additional context (optional)
 _Add any other helpful info or screenshots here._
