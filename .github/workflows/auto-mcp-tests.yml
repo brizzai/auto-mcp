@@ -5,11 +5,15 @@ on:
     branches: [master]
     paths:
       - "internal/**"
+      - "go.mod"
+      - "go.sum"
       - ".github/workflows/auto-mcp-tests.yml"
   pull_request:
     branches: [master]
     paths:
       - "internal/**"
+      - "go.mod"
+      - "go.sum"
       - ".github/workflows/auto-mcp-tests.yml"
 
 env:
