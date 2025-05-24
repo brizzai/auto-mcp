@@ -191,8 +191,10 @@ func writeJSON(w http.ResponseWriter, data interface{}) {
 func writeError(w http.ResponseWriter, code, message string, status int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{
+	if err := json.NewEncoder(w).Encode(map[string]string{
 		"error":             code,
 		"error_description": message,
-	})
+	}); err != nil {
+		logger.Error("Failed to encode error response", zap.Error(err))
+	}
 }

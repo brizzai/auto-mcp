@@ -9,6 +9,8 @@ import (
 	"github.com/brizzai/auto-mcp/internal/auth/constants"
 	"github.com/brizzai/auto-mcp/internal/auth/models"
 	"github.com/brizzai/auto-mcp/internal/config"
+	"github.com/brizzai/auto-mcp/internal/logger"
+	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/github"
 )
@@ -84,7 +86,11 @@ func (p *GitHubProvider) getUserInfo(client *http.Client) (*models.UserInfo, err
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user info: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logger.Error("Failed to close response body", zap.Error(err))
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("user info request failed with status %d", resp.StatusCode)

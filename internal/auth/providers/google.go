@@ -112,7 +112,11 @@ func (p *GoogleProvider) ValidateAccessToken(ctx context.Context, token string) 
 		logger.Error("Failed to call userinfo endpoint", zap.Error(err))
 		return nil, fmt.Errorf("failed to call userinfo endpoint: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logger.Error("Failed to close response body", zap.Error(err))
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("userinfo request failed with status %d", resp.StatusCode)

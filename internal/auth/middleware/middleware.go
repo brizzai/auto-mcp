@@ -128,8 +128,10 @@ func writeError(w http.ResponseWriter, status int, code, message string) {
 		w.Header().Set("WWW-Authenticate", fmt.Sprintf(`Bearer realm="MCP Server", error="%s", error_description="%s"`, code, message))
 	}
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(map[string]string{
+	if err := json.NewEncoder(w).Encode(map[string]string{
 		"error":             code,
 		"error_description": message,
-	})
+	}); err != nil {
+		logger.Error("Failed to encode error response", zap.Error(err))
+	}
 }
