@@ -63,7 +63,7 @@ func main() {
 		// Config Provider
 		fx.Provide(func() *config.Config { return cfg }),
 		fx.Provide(func() *config.EndpointConfig { return &cfg.EndpointConfig }),
-		fx.Invoke(func(lc fx.Lifecycle, srv *server.MCPServer) {
+		fx.Invoke(func(lc fx.Lifecycle, srv *server.Server) {
 			appCtx, cancel := context.WithCancel(context.Background())
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
