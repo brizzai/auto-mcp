@@ -26,6 +26,7 @@ type Config struct {
 	EndpointConfig  EndpointConfig `mapstructure:"endpoint"`
 	SwaggerFile     string         `mapstructure:"swagger_file"`
 	AdjustmentsFile string         `mapstructure:"adjustments_file"`
+	OAuth           *OAuthConfig   `mapstructure:"oauth"`
 }
 
 // AuthType represents the type of authentication to use
@@ -51,6 +52,7 @@ type ServerMode string
 const (
 	ServerModeSSE   ServerMode = "sse"
 	ServerModeSTDIO ServerMode = "stdio"
+	ServerModeHTTP  ServerMode = "http"
 )
 
 type ServerConfig struct {
@@ -70,9 +72,25 @@ type LoggingConfig struct {
 	DisableConsole    bool   `mapstructure:"disable_console"`
 }
 
+type OAuthConfig struct {
+	Enabled       bool   `mapstructure:"enabled" `
+	Provider      string `mapstructure:"provider"` // internal, oauth2, github, google, etc.
+	ClientID      string `mapstructure:"client_id"`
+	ClientSecret  string `mapstructure:"client_secret"`
+	RedirectURL   string `mapstructure:"redirect_url"`
+	AuthURL       string `mapstructure:"auth_url"`
+	TokenURL      string `mapstructure:"token_url"`
+	UserInfoURL   string `mapstructure:"user_info_url"`
+	Scopes        string `mapstructure:"scopes"`
+	BaseURL       string `mapstructure:"base_url"`       // Base URL for OAuth endpoints
+	Host          string `mapstructure:"host"`           // Server host (defaults to server.host)
+	Port          int    `mapstructure:"port"`           // Server port (defaults to server.port)
+	SecureCookies bool   `mapstructure:"secure_cookies"` // HTTPS only cookies
+}
+
 // InitFlags initializes command line flags (without parsing)
 func InitFlags() {
-	pflag.String("mode", string(ServerModeSTDIO), "Server mode (stdio|sse)")
+	pflag.String("mode", string(ServerModeSTDIO), "Server mode (stdio|sse|http)")
 	pflag.String("swagger-file", "", "Path to the swagger file")
 	pflag.String("adjustments-file", "", "Path to the adjustments file")
 	// Note: no pflag.Parse() here as it's called in main.go
@@ -108,7 +126,7 @@ func Load() (*Config, error) {
 	// Set server mode from flag
 	if mode := viper.GetString("mode"); mode != "" {
 		switch ServerMode(mode) {
-		case ServerModeSSE, ServerModeSTDIO:
+		case ServerModeSSE, ServerModeSTDIO, ServerModeHTTP:
 			config.Server.Mode = ServerMode(mode)
 		}
 	}
@@ -126,6 +144,20 @@ func Load() (*Config, error) {
 	// Set adjustments file from flag or environment
 	if adjustmentsFile := viper.GetString("adjustments-file"); adjustmentsFile != "" {
 		config.AdjustmentsFile = adjustmentsFile
+	}
+
+	// If OAuth is enabled, inherit server settings if not specified
+	if config.OAuth != nil && config.OAuth.Enabled {
+		if config.OAuth.Host == "" {
+			config.OAuth.Host = config.Server.Host
+		}
+		if config.OAuth.Port == 0 {
+			config.OAuth.Port = config.Server.Port
+		}
+		// Set base URL if not specified
+		if config.OAuth.BaseURL == "" {
+			config.OAuth.BaseURL = fmt.Sprintf("http://%s:%d", config.OAuth.Host, config.OAuth.Port)
+		}
 	}
 
 	return &config, nil

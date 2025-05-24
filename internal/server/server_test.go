@@ -67,7 +67,7 @@ func TestNewMCPServer_SemiE2E(t *testing.T) {
 	})
 
 	// Create the MCP server under test
-	mcpSrv := NewMCPServer(srvCfg, swaggerParser, httpRequester)
+	mcpSrv := NewServer(srvCfg, swaggerParser, httpRequester)
 	require.NotNil(t, mcpSrv, "expected MCP server instance, got nil")
 
 	// Ensure that tools have been loaded according to the adjustments file
@@ -216,7 +216,7 @@ func TestMCPServer_ListTools(t *testing.T) {
 	})
 
 	// Create the MCP server under test
-	mcpSrv := NewMCPServer(srvCfg, swaggerParser, httpRequester)
+	mcpSrv := NewServer(srvCfg, swaggerParser, httpRequester)
 	require.NotNil(t, mcpSrv, "expected MCP server instance, got nil")
 
 	// Create a context with cancellation for the server
@@ -398,7 +398,7 @@ func TestMCPServer_ContextCancellation(t *testing.T) {
 	})
 
 	// Create the server
-	mcpSrv := NewMCPServer(srvCfg, swaggerParser, httpRequester)
+	mcpSrv := NewServer(srvCfg, swaggerParser, httpRequester)
 	require.NotNil(t, mcpSrv, "Failed to create MCP server")
 
 	// Create a context with cancellation
@@ -461,7 +461,7 @@ func TestMCPServer_ToolRegistration(t *testing.T) {
 	})
 
 	// Create MCP server with our mock parser
-	mcpSrv := NewMCPServer(srvCfg, mockParser, httpRequester)
+	mcpSrv := NewServer(srvCfg, mockParser, httpRequester)
 	require.NotNil(t, mcpSrv, "Failed to create MCP server")
 
 	// Since we can't directly access the tools registered in the MCP server,

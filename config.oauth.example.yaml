@@ -1,0 +1,77 @@
+# Example OAuth configuration for auto-mcp with MCP protocol
+# Copy this file to config.yaml and adjust the values
+
+# Server configuration
+server:
+  host: localhost
+  port: 3000
+  timeout: 30s
+  mode: sse  # or "http" for streamable HTTP mode
+
+# OAuth configuration for MCP protocol
+oauth:
+  enabled: true
+  provider: internal  # Options: internal (for testing), oauth2, github, google
+  
+  # Base URL for OAuth endpoints (defaults to http://server.host:server.port)
+  base_url: "http://localhost:3000"
+  
+  # For external OAuth providers:
+  # client_id: "your-client-id"
+  # client_secret: "your-client-secret"
+  # redirect_url: "http://localhost:3000/auth/callback"
+  
+  # For generic OAuth2 provider, specify these URLs:
+  # auth_url: "https://provider.com/oauth/authorize"
+  # token_url: "https://provider.com/oauth/token"
+  # user_info_url: "https://provider.com/api/user"
+  # scopes: "read write"
+  
+  # Security settings
+  secure_cookies: false  # Set to true for HTTPS
+
+# Example configurations for specific providers:
+
+# Internal provider (for testing/development):
+# oauth:
+#   enabled: true
+#   provider: internal
+#   base_url: "http://localhost:3000"
+
+# GitHub OAuth example:
+# oauth:
+#   enabled: true
+#   provider: github
+#   client_id: "your-github-client-id"
+#   client_secret: "your-github-client-secret"
+#   redirect_url: "http://localhost:3000/auth/callback"
+#   scopes: "read:user user:email"
+
+# Google OAuth example:
+# oauth:
+#   enabled: true
+#   provider: google
+#   client_id: "your-google-client-id.apps.googleusercontent.com"
+#   client_secret: "your-google-client-secret"
+#   redirect_url: "http://localhost:3000/auth/callback"
+#   scopes: "openid email profile"
+
+# API endpoint configuration for your swagger API
+endpoint:
+  base_url: "https://api.example.com"
+  auth_type: bearer
+  auth_config:
+    token: "your-api-token"
+  headers:
+    X-API-Version: "1.0"
+
+# Logging configuration
+logging:
+  level: info
+  format: console
+  color: true
+  disable_stacktrace: false
+
+# Swagger file configuration
+swagger_file: "path/to/swagger.yaml"
+adjustments_file: "path/to/adjustments.yaml"  # Optional 
