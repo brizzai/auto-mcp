@@ -18,3 +18,13 @@ endpoint:
   auth_type: "bearer"
   auth_config:
     token: "123"
+
+oauth:
+  enabled: true
+  provider: google
+  client_id: ""
+  client_secret: ""
+  redirect_url: "http://127.0.0.1:6274/oauth/callback"
+  scopes: "openid email profile"
+  base_url: "http://localhost:8080"
+  secure_cookies: false
