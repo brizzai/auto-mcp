@@ -9,6 +9,7 @@ import (
 	"github.com/brizzai/auto-mcp/internal/auth/constants"
 	"github.com/brizzai/auto-mcp/internal/auth/providers"
 	"github.com/brizzai/auto-mcp/internal/logger"
+	"github.com/brizzai/auto-mcp/internal/utils"
 	"go.uber.org/zap"
 )
 
@@ -41,7 +42,7 @@ func (h *Handler) HandleProtectedResourceDiscovery(w http.ResponseWriter, r *htt
 		"resource_metadata_uri": fmt.Sprintf("%s/.well-known/oauth-protected-resource", h.baseURL),
 	}
 
-	writeJSON(w, discovery)
+	utils.WriteJSON(w, discovery)
 }
 
 // HandleAuthorizationServerDiscovery handles /.well-known/oauth-authorization-server
@@ -64,7 +65,7 @@ func (h *Handler) HandleAuthorizationServerDiscovery(w http.ResponseWriter, r *h
 		"code_challenge_methods_supported":      constants.SupportedPKCEMethods,
 	}
 
-	writeJSON(w, discovery)
+	utils.WriteJSON(w, discovery)
 }
 
 // HandleToken handles the token endpoint
@@ -75,19 +76,19 @@ func (h *Handler) HandleToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseForm(); err != nil {
-		writeError(w, "invalid_request", "Failed to parse form", http.StatusBadRequest)
+		utils.WriteError(w, "invalid_request", "Failed to parse form", http.StatusBadRequest)
 		return
 	}
 
 	grantType := r.FormValue("grant_type")
 	if grantType != "authorization_code" {
-		writeError(w, "unsupported_grant_type", "Unsupported grant type", http.StatusBadRequest)
+		utils.WriteError(w, "unsupported_grant_type", "Unsupported grant type", http.StatusBadRequest)
 		return
 	}
 
 	code := r.FormValue("code")
 	if code == "" {
-		writeError(w, "invalid_request", "Code is required", http.StatusBadRequest)
+		utils.WriteError(w, "invalid_request", "Code is required", http.StatusBadRequest)
 		return
 	}
 
@@ -99,10 +100,10 @@ func (h *Handler) HandleToken(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		logger.Error("Failed to exchange code", zap.Error(err))
-		writeError(w, "invalid_grant", err.Error(), http.StatusBadRequest)
+		utils.WriteError(w, "invalid_grant", err.Error(), http.StatusBadRequest)
 		return
 	}
-	writeJSON(w, tokenResp)
+	utils.WriteJSON(w, tokenResp)
 }
 
 // HandleRegister handles client registration
@@ -118,12 +119,12 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, "invalid_request", "Invalid request body", http.StatusBadRequest)
+		utils.WriteError(w, "invalid_request", "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
 	if req.ClientName == "" {
-		writeError(w, "invalid_request", "Client name is required", http.StatusBadRequest)
+		utils.WriteError(w, "invalid_request", "Client name is required", http.StatusBadRequest)
 		return
 	}
 
@@ -136,7 +137,7 @@ func (h *Handler) HandleRegister(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	writeJSON(w, resp)
+	utils.WriteJSON(w, resp)
 }
 
 // HandleAuthorize handles the authorization endpoint
@@ -166,7 +167,7 @@ func (h *Handler) HandleAuthCallback(w http.ResponseWriter, r *http.Request) {
 	state := r.URL.Query().Get("state")
 
 	if code == "" {
-		writeError(w, "invalid_request", "Code is required", http.StatusBadRequest)
+		utils.WriteError(w, "invalid_request", "Code is required", http.StatusBadRequest)
 		return
 	}
 
@@ -175,26 +176,5 @@ func (h *Handler) HandleAuthCallback(w http.ResponseWriter, r *http.Request) {
 		"state": state,
 	}
 
-	writeJSON(w, resp)
-}
-
-// writeJSON writes a JSON response
-func writeJSON(w http.ResponseWriter, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(data); err != nil {
-		logger.Error("Failed to encode JSON response", zap.Error(err))
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
-}
-
-// writeError writes a JSON error response
-func writeError(w http.ResponseWriter, code, message string, status int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	if err := json.NewEncoder(w).Encode(map[string]string{
-		"error":             code,
-		"error_description": message,
-	}); err != nil {
-		logger.Error("Failed to encode error response", zap.Error(err))
-	}
+	utils.WriteJSON(w, resp)
 }
