@@ -126,7 +126,7 @@ endpoint:
 
 oauth:
   enabled: false # Enable OAuth2 authentication
-  provider: github # OAuth provider (github, google, etc.)
+  provider: github # OAuth provider (github, google)
   client_id: "" # OAuth client ID
   client_secret: "" # OAuth client secret
   scopes: "" # OAuth scopes (space-separated)

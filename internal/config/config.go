@@ -77,7 +77,7 @@ type LoggingConfig struct {
 
 type OAuthConfig struct {
 	Enabled      bool     `mapstructure:"enabled" `
-	Provider     string   `mapstructure:"provider"` // internal, oauth2, github, google, etc.
+	Provider     string   `mapstructure:"provider"` // github or google
 	ClientID     string   `mapstructure:"client_id"`
 	ClientSecret string   `mapstructure:"client_secret"`
 	Scopes       string   `mapstructure:"scopes"`
