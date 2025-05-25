@@ -56,3 +56,110 @@ docker run --rm -i \
   --swagger-file=/server/swagger.json \
   --adjustment-file=/server/adjustments.json
 ```
+
+---
+
+## 📝 Mounting and Overwriting `config.yaml` (Full Configuration)
+
+Instead of passing individual CLI flags or environment variables, you can mount a complete `config.yaml` into the container to control all aspects of Auto MCP—including the Swagger and adjustment files, server mode, logging, authentication, and OAuth settings.
+
+**Recommended for production or reproducible deployments.**
+
+### Example Directory Structure
+
+Suppose you have the following files in a directory (e.g., `examples/petshop/config`):
+
+- `config.yaml` (references the other files by their paths)
+- `swagger.json` (your OpenAPI/Swagger definition)
+- `adjustment.yaml` (optional, for endpoint adjustments)
+
+Your `config.yaml` should include references like:
+
+```yaml
+swagger_file: "/config/swagger.json"
+adjustments_file: "/config/adjustment.yaml"
+```
+
+### Mounting the Entire Config Directory in Docker
+
+```bash
+docker run --rm -i \
+  -v $(pwd)/examples/petshop/config:/config \
+  ghcr.io/brizzai/auto-mcp:latest
+```
+
+- The container will use `/config/config.yaml` for all configuration.
+- The `swagger_file` and `adjustments_file` paths in your config should match the mount locations.
+- No need to pass `--swagger-file` or `--adjustment-file` flags if set in `config.yaml`.
+
+This approach keeps all related files together and is ideal for local development or sharing example setups.
+
+---
+
+## Example config.yaml
+
+```yaml
+server:
+  mode: http # Server mode: http, stdio, or sse
+  port: 8080 # Port to bind (for http/sse)
+  host: "0.0.0.0" # Host to bind
+  timeout: 30s # Request timeout (e.g., 30s, 1m)
+
+logging:
+  level: "info" # Log level: debug, info, warn, error
+  format: "json" # Log format: json or console
+  color: true # Enable color in logs (console only)
+  disable_stacktrace: false # Disable stacktraces in logs
+  output_path: "logs/auto-mcp.log" # Log file path
+  append_to_file: true # Append to log file if true
+  disable_console: false # Disable console logging if true
+
+endpoint:
+  base_url: "https://petstore.swagger.io/v2" # Upstream API base URL
+  auth_type: "none" # Auth type: none, basic, bearer, api_key, oauth2
+  # auth_config:           # (optional) Auth config map, e.g. {token: "..."}
+  # headers:               # (optional) Extra headers map, e.g. {X-Api-Key: "..."}
+
+oauth:
+  enabled: false # Enable OAuth2 authentication
+  provider: github # OAuth provider (github, google, etc.)
+  client_id: "" # OAuth client ID
+  client_secret: "" # OAuth client secret
+  scopes: "" # OAuth scopes (space-separated)
+  base_url: "" # OAuth base URL (optional, usually auto-set)
+  allow_origins: [] # List of allowed CORS origins
+
+swagger_file: "/config/swagger.json" # Path to OpenAPI/Swagger file
+adjustments_file: "/config/adjustment.yaml" # Path to adjustments file
+```
+
+### Field Explanations
+
+- **server**: Server settings
+  - `mode`: How the server runs (`http`, `stdio`, or `sse`)
+  - `port`: Port to listen on (for http/sse)
+  - `host`: Host address to bind
+  - `timeout`: Request timeout duration (e.g., `30s`)
+- **logging**: Logging configuration
+  - `level`: Log verbosity (`debug`, `info`, `warn`, `error`)
+  - `format`: Log output format (`json` or `console`)
+  - `color`: Use color in logs (console only)
+  - `disable_stacktrace`: Disable stacktraces in logs
+  - `output_path`: File path for logs
+  - `append_to_file`: Append to log file if true
+  - `disable_console`: Disable console logging if true
+- **endpoint**: Upstream API endpoint
+  - `base_url`: Base URL for the upstream API
+  - `auth_type`: Authentication type (`none`, `basic`, `bearer`, `api_key`, `oauth2`)
+  - `auth_config`: (optional) Map of auth config values (e.g., `{token: "..."}`)
+  - `headers`: (optional) Map of extra HTTP headers
+- **oauth**: OAuth2 configuration (optional)
+  - `enabled`: Enable OAuth2 authentication
+  - `provider`: OAuth provider name (e.g., `github`, `google`)
+  - `client_id`: OAuth client ID
+  - `client_secret`: OAuth client secret
+  - `scopes`: Space-separated list of OAuth scopes
+  - `base_url`: OAuth base URL (optional, usually auto-set)
+  - `allow_origins`: List of allowed CORS origins
+- **swagger_file**: Path to the OpenAPI/Swagger file
+- **adjustments_file**: Path to the adjustments file (for mcp-config-builder)

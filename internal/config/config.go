@@ -93,7 +93,8 @@ func InitFlags() {
 }
 
 func Load() (*Config, error) {
-	// Initialize viper
+	viper.Reset() // Ensure clean state
+
 	viper.SetEnvPrefix("AUTO_MCP")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	viper.AutomaticEnv()
@@ -102,17 +103,24 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
-	// Load main config
+	// Load ./config.yaml first
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 
-	// Follows Linux convention of checking the local directory first, then system-wide locations
-	// This is needed for Docker container in Dockerfile.goreleaser where config is mounted at /etc/auto-mcp
 	viper.AddConfigPath("/etc/auto-mcp")
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, err
+	}
+
+	// Merge /config/config.yaml (overrides overlapping keys)
+	viper.SetConfigFile("/config/config.yaml")
+	if err := viper.MergeInConfig(); err != nil {
+		// It's OK if this file doesn't exist, only error if it's another problem
+		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			return nil, err
+		}
 	}
 
 	var config Config

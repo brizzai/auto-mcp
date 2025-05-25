@@ -11,7 +11,7 @@
 
 Transform any OpenAPI/Swagger definition into a fully-featured **Model Context Protocol (MCP)** server – ready to run locally, inside Claude Desktop, or in the cloud.
 
-The service reads a Swagger (OpenAPI v2) document, generates routes on-the-fly, proxies requests to the upstream endpoint you configure, and exposes them through MCP using either the **STDIO** or **HTTP** or **SSE** transport defined in the [MCP specification](https://modelcontextprotocol.io/introduction).
+The service reads a Swagger (OpenAPI v2) or OpenAPI v3 document, generates routes on-the-fly, proxies requests to the upstream endpoint you configure, and exposes them through MCP using either the **STDIO** or **HTTP** or **SSE** transport defined in the [MCP specification](https://modelcontextprotocol.io/introduction).
 
 ---
 
@@ -140,6 +140,20 @@ See the [OAuth Usage Guide](docs/oauth-usage.md) for detailed setup instructions
    ```
 
 The bundled `docker-compose.yml` maps port 8080 and persists logs to `./logs`.
+
+### running pet example
+
+Run the included Petshop demo configuration with Docker:
+
+```bash
+docker run --rm -i \
+  -v $(pwd)/examples/petshop/config:/config \
+  ghcr.io/brizzai/auto-mcp:latest
+```
+
+config contains and overwrite `config.yaml` and both of the `swagger.json` and `adjustment.yaml` files
+
+See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for all config options and environment variable overrides.
 
 ## 🤝 Contributing
 
