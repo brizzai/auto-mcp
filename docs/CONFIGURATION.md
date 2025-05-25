@@ -20,7 +20,7 @@ Auto MCP accepts configuration via **CLI flags**, **environment variables** (pre
 | OAuth client ID                       | `AUTO_MCP_OAUTH_CLIENT_ID`            | `your-client-id`                 |
 | OAuth client secret                   | `AUTO_MCP_OAUTH_CLIENT_SECRET`        | `your-client-secret`             |
 | OAuth scopes                          | `AUTO_MCP_OAUTH_SCOPES`               | `openid email profile`           |
-| OAuth base URL                        | `AUTO_MCP_OAUTH_BASE_URL`             | `http://localhost:8080`          |
+| OAuth base URL                        | `AUTO_MCP_OAUTH_BASE_URL`             | `http://localhost:8080/oauth`    |
 | OAuth host (optional)                 | `AUTO_MCP_OAUTH_HOST`                 | `localhost`                      |
 | OAuth port (optional)                 | `AUTO_MCP_OAUTH_PORT`                 | `8080`                           |
 
@@ -132,34 +132,3 @@ oauth:
 swagger_file: "/config/swagger.json" # Path to OpenAPI/Swagger file
 adjustments_file: "/config/adjustment.yaml" # Path to adjustments file
 ```
-
-### Field Explanations
-
-- **server**: Server settings
-  - `mode`: How the server runs (`http`, `stdio`, or `sse`)
-  - `port`: Port to listen on (for http/sse)
-  - `host`: Host address to bind
-  - `timeout`: Request timeout duration (e.g., `30s`)
-- **logging**: Logging configuration
-  - `level`: Log verbosity (`debug`, `info`, `warn`, `error`)
-  - `format`: Log output format (`json` or `console`)
-  - `color`: Use color in logs (console only)
-  - `disable_stacktrace`: Disable stacktraces in logs
-  - `output_path`: File path for logs
-  - `append_to_file`: Append to log file if true
-  - `disable_console`: Disable console logging if true
-- **endpoint**: Upstream API endpoint
-  - `base_url`: Base URL for the upstream API
-  - `auth_type`: Authentication type (`none`, `basic`, `bearer`, `api_key`, `oauth2`)
-  - `auth_config`: (optional) Map of auth config values (e.g., `{token: "..."}`)
-  - `headers`: (optional) Map of extra HTTP headers
-- **oauth**: OAuth2 configuration (optional)
-  - `enabled`: Enable OAuth2 authentication
-  - `provider`: OAuth provider name (e.g., `github`, `google`)
-  - `client_id`: OAuth client ID
-  - `client_secret`: OAuth client secret
-  - `scopes`: Space-separated list of OAuth scopes
-  - `base_url`: OAuth base URL (optional, usually auto-set)
-  - `allow_origins`: List of allowed CORS origins
-- **swagger_file**: Path to the OpenAPI/Swagger file
-- **adjustments_file**: Path to the adjustments file (for mcp-config-builder)

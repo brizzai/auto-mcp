@@ -113,7 +113,7 @@ For detailed configureation guidelines, please see [CONFIGURATION.md](docs/CONFI
 
 Auto MCP supports OAuth 2.1 authentication, including PKCE, dynamic client registration, and multiple providers (internal, GitHub, Google). This allows you to secure your MCP server with industry-standard authentication flows.
 
-See the [OAuth Usage Guide](docs/oauth-usage.md) for detailed setup instructions, endpoint descriptions, and testing tips.
+See the [OAuth Usage Guide](docs/OAUTH.md) for detailed setup instructions, endpoint descriptions, and testing tips.
 
 ---
 

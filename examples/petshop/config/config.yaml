@@ -27,4 +27,3 @@ oauth:
   allow_origins: []
 
 swagger_file: "/config/swagger.json"
-adjustments_file: "/config/adjustment.yaml" 

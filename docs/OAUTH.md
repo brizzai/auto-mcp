@@ -1,6 +1,7 @@
 # MCP OAuth Authentication for Auto-MCP
 
 Auto-MCP implements the Model Context Protocol (MCP) OAuth specification for securing access to MCP servers. This follows the OAuth 2.1 specification with MCP-specific requirements including discovery endpoints, PKCE support, and proper session management.
+[MCP OAuth Protocol Specification](https://modelcontextprotocol.io/specification/draft/basic/authorization)
 
 ## Overview
 
@@ -33,29 +34,13 @@ oauth:
   client_id: "<client_id>"
   client_secret: "<cleint_secret>"
   scopes: "openid email profile"
-  base_url: "http://localhost:8080"
+  base_url: "http://localhost:8080" # issue (this mcp) endpoint
   # List of allowed origins for CORS (optional)
   allow_origins:
-    - "http://localhost:3000"
-    - "http://localhost:8080"
+    - "http://localhost:17623" # LLMApp origin (example: npx mcp-remote default port )
 ```
 
 ### Provider Options
-
-#### Internal Provider (Testing/Development)
-
-```yaml
-oauth:
-  enabled: true
-  provider: internal
-  base_url: "http://localhost:8080"
-```
-
-This provider automatically approves all authorization requests for testing.
-
-#### External OAuth Providers
-
-For production, use external providers:
 
 ```yaml
 # GitHub
@@ -83,16 +68,13 @@ Set the following environment variables to configure OAuth via environment:
 
 ```bash
 export AUTO_MCP_OAUTH_ENABLED=true
-export AUTO_MCP_OAUTH_PROVIDER=github
+export AUTO_MCP_OAUTH_PROVIDER=github  # support for `github` / `google`
 export AUTO_MCP_OAUTH_CLIENT_ID=your-client-id
 export AUTO_MCP_OAUTH_CLIENT_SECRET=your-client-secret
 export AUTO_MCP_OAUTH_SCOPES="openid email profile"
 export AUTO_MCP_OAUTH_BASE_URL=http://localhost:8080
-# Optional overrides:
-export AUTO_MCP_OAUTH_HOST=localhost
-export AUTO_MCP_OAUTH_PORT=8080
 # Optional: comma-separated list of allowed origins for CORS
-export AUTO_MCP_OAUTH_ALLOW_ORIGINS="http://localhost:3000,http://localhost:8080"
+export AUTO_MCP_OAUTH_ALLOW_ORIGINS="http://localhost:17623"
 ```
 
 ## OAuth Endpoints

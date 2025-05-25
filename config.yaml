@@ -14,7 +14,7 @@ logging:
   disable_console: false
 
 endpoint:
-  base_url: "http://localhost:8989"
+  base_url: "http://localhost:3000"
   auth_type: "bearer"
   auth_config:
     token: "enter_your_token_here"
@@ -27,5 +27,4 @@ oauth:
   scopes: "openid email profile"
   base_url: "http://localhost:8080"
   allow_origins:
-    - "http://127.0.0.1:6274"
-    - "http://localhost:8080"
+    - "http://127.0.0.1:6274" # mcp inspector default endpoint
