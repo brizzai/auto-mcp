@@ -6,7 +6,7 @@ Auto MCP accepts configuration via **CLI flags**, **environment variables** (pre
 
 | Purpose                               | Env variable                          | Example                          |
 | ------------------------------------- | ------------------------------------- | -------------------------------- |
-| Select transport                      | `AUTO_MCP_SERVER_MODE`                | `stdio` or `sse`                 |
+| Select transport                      | `AUTO_MCP_SERVER_MODE`                | `stdio` or `http` or `sse`       |
 | Bind port (SSE)                       | `AUTO_MCP_SERVER_PORT`                | `8080`                           |
 | Upstream base URL                     | `AUTO_MCP_ENDPOINT_BASE_URL`          | `https://petstore.swagger.io/v2` |
 | Authentication type                   | `AUTO_MCP_ENDPOINT_AUTH_TYPE`         | `bearer`                         |

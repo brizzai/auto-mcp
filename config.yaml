@@ -14,16 +14,18 @@ logging:
   disable_console: false
 
 endpoint:
-  base_url: "http://localhost:3000"
+  base_url: "http://localhost:8989"
   auth_type: "bearer"
   auth_config:
-    token: "123"
+    token: "enter_your_token_here"
 
 oauth:
   enabled: true
-  provider: google
-  client_id: ""
-  client_secret: ""
+  provider: github
+  client_id: "client_id"
+  client_secret: "client_secret"
   scopes: "openid email profile"
   base_url: "http://localhost:8080"
-  secure_cookies: false
+  allow_origins:
+    - "http://127.0.0.1:6274"
+    - "http://localhost:8080"
