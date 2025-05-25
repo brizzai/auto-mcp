@@ -141,9 +141,14 @@ See the [OAuth Usage Guide](docs/oauth-usage.md) for detailed setup instructions
 
 The bundled `docker-compose.yml` maps port 8080 and persists logs to `./logs`.
 
-### running pet example
+### Running the Petshop Example
 
-Run the included Petshop demo configuration with Docker:
+You can try out the included Petshop demo using Docker. This demo uses a sample configuration and API specs to show how auto-mcp works.
+
+**Steps:**
+
+1. Make sure you are in the root directory of this repository.
+2. Run the following command:
 
 ```bash
 docker run --rm -i \
@@ -151,9 +156,20 @@ docker run --rm -i \
   ghcr.io/brizzai/auto-mcp:latest
 ```
 
-config contains and overwrite `config.yaml` and both of the `swagger.json` and `adjustment.yaml` files
+- This command mounts the `examples/petshop/config` directory from your local machine into the Docker container at `/config`.
+- The `/config` directory inside the container should contain:
+  - `config.yaml`: Main configuration file for the demo
+  - `swagger.json`: API specification for the Petshop service
+  - `adjustment.yaml`: Optional adjustments or overrides for the API
 
-See [docs/CONFIGURATION.md](docs/CONFIGURATION.md) for all config options and environment variable overrides.
+> **Note:**
+> Any files you place in `examples/petshop/config` will overwrite the default `config.yaml`, `swagger.json`, and `adjustment.yaml` inside the container.
+
+This setup allows you to easily test and modify the Petshop demo configuration.
+
+See [docs/CONFIGURATION.md](docs/
+CONFIGURATION.md) for all config options
+and environment variable overrides.
 
 ## 🤝 Contributing
 

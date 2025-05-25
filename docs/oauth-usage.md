@@ -10,7 +10,7 @@ The MCP OAuth implementation provides:
 2. **PKCE Support** - Proof Key for Code Exchange for enhanced security
 3. **Dynamic Client Registration** - Allows MCP clients to register dynamically
 4. **Session Management** - Integrated with MCP's session management system
-5. **Multiple Provider Support** - Internal, OAuth2, GitHub, Google providers
+5. **Multiple Provider Support** - GitHub, Google providers
 
 ## MCP OAuth Flow
 
@@ -30,8 +30,8 @@ Add OAuth configuration to your `config.yaml`:
 oauth:
   enabled: true
   provider: github
-  client_id: "Ov23liozYecthHWUsYo6"
-  client_secret: "aa5074a412449afc2236d124049e125b427c0461"
+  client_id: "<client_id>"
+  client_secret: "<cleint_secret>"
   scopes: "openid email profile"
   base_url: "http://localhost:8080"
   # List of allowed origins for CORS (optional)
@@ -62,8 +62,8 @@ For production, use external providers:
 oauth:
   enabled: true
   provider: github
-  client_id: "Ov23liozYecthHWUsYo6"
-  client_secret: "aa5074a412449afc2236d124049e125b427c0461"
+  client_id: "<client_id>"
+  client_secret: "<cleint_secret>"
   scopes: "openid email profile"
   base_url: "http://localhost:8080"
 

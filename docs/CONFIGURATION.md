@@ -16,7 +16,7 @@ Auto MCP accepts configuration via **CLI flags**, **environment variables** (pre
 | Path to swagger file                  | `AUTO_MCP_SWAGGER_FILE`               | `/server/swagger.json`           |
 | Path to adjustment file (mcp-builder) | `AUTO_MCP_ADJUSTMENTS_FILE`           | `/server/swagger.json`           |
 | Enable OAuth                          | `AUTO_MCP_OAUTH_ENABLED`              | `true`                           |
-| OAuth provider                        | `AUTO_MCP_OAUTH_PROVIDER`             | `github`                         |
+| OAuth provider                        | `AUTO_MCP_OAUTH_PROVIDER`             | `github` / `google`              |
 | OAuth client ID                       | `AUTO_MCP_OAUTH_CLIENT_ID`            | `your-client-id`                 |
 | OAuth client secret                   | `AUTO_MCP_OAUTH_CLIENT_SECRET`        | `your-client-secret`             |
 | OAuth scopes                          | `AUTO_MCP_OAUTH_SCOPES`               | `openid email profile`           |
