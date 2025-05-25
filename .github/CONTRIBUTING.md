@@ -1,8 +1,46 @@
 # Contributing
 
-Before making any changes to this repository, we kindly request you to initiate discussions for proposed changes that do not yet have an associated [issue](https://github.com/brizzai/auto-mcp/issues). For [issue](https://github.com/brizzai/auto-mcp/issues) that already exist, you may proceed with discussions using our [issue](https://github.com/brizzai/auto-mcp/issues) tracker or any other suitable method, in consultation with the repository owners. Your collaboration is greatly appreciated.
+Issues and pull requests are very welcome. Please follow conventional commits and run `make lint test` before opening a PR.
+
+Before making any changes to this repository, we kindly request you to initiate discussions for proposed changes that do not yet have an associated [issue](https://github.com/brizzai/auto-mcp/issues). Your collaboration is greatly appreciated.
 
 Please note: we have a [code of conduct](https://github.com/brizzai/auto-mcp/blob/master/.github/CODE_OF_CONDUCT.md), please follow it in all your interactions with the `Auto MCP` project.
+
+---
+
+## Project Structure
+
+Auto MCP follows the standard Go project layout:
+
+- **`cmd/auto-mcp/`**: Contains the main entry point for the application
+  - `main.go`: The main function that serves as the entry point
+- **`internal/`**: Private application code not meant to be imported by other projects
+  - `config/`: Configuration loading and parsing
+  - `logger/`: Application logging setup
+  - `parser/`: Swagger/OpenAPI parsing
+  - `requester/`: Handles external API requests
+  - `server/`: MCP server implementation (STDIO/SSE)
+- **`build/`**: Compiled application binaries
+
+To build the project:
+
+```bash
+make build   # Binary will be in build/auto-mcp
+```
+
+---
+
+## Release & Versioning
+
+Auto MCP uses [GoReleaser](https://goreleaser.com/) to automate builds and publish cross-platform releases. For comprehensive information about the release process, automated GitHub Actions workflows, and available artifacts, see [RELEASE.md](RELEASE.md).
+
+Check the current version with:
+
+```bash
+auto-mcp --version
+```
+
+---
 
 ## Pull Requests or Commits
 Titles always we must use prefix according to below:
@@ -27,6 +65,28 @@ pre-commit install
 ```
 
 Pre-commit will automatically run various checks on your code when you commit, ensuring that your contributions meet the project's standards.
+
+---
+
+## Running Example
+
+The repository includes a ready-to-run example using the Swagger [PetStore](http://petstore.swagger.io/v2) API with Auto MCP:
+
+```bash
+# Start the service in SSE mode (runs on port 8080 by default)
+docker compose -f examples/petshop/docker-compose.yml up
+```
+
+Once running, you can access the MCP SSE endpoint at `http://localhost:8080/sse`.
+
+You can inspect and test your newly created MCP using the MCP Inspector:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+---
+
 
 # 👍 Contribute
 
