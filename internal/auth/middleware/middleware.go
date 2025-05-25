@@ -51,7 +51,6 @@ func Authenticate(provider providers.Provider) func(http.Handler) http.Handler {
 				writeError(w, http.StatusUnauthorized, "invalid_token", err.Error())
 				return
 			}
-			logger.Info("Authenticate middleware userInfo", zap.Any("userInfo", userInfo))
 
 			ctx := context.WithValue(r.Context(), AuthContextKey, &AuthInfo{
 				UserID: userInfo.ID,
@@ -59,9 +58,6 @@ func Authenticate(provider providers.Provider) func(http.Handler) http.Handler {
 				Name:   userInfo.Name,
 				Token:  token,
 			})
-
-			logger.Info("Authenticate middleware ctx", zap.Any("ctx", ctx))
-
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

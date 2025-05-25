@@ -24,15 +24,17 @@ func NewGitHubProvider(cfg *config.OAuthConfig) *GitHubProvider {
 		oauth2Config: &oauth2.Config{
 			ClientID:     cfg.ClientID,
 			ClientSecret: cfg.ClientSecret,
-			RedirectURL:  cfg.RedirectURL,
 			Endpoint:     github.Endpoint,
 			Scopes:       []string{"user:email"},
 		},
 	}
 }
 
-func (p *GitHubProvider) GetAuthURL(state, codeChallenge, codeChallengeMethod string) string {
+func (p *GitHubProvider) GetAuthURL(state, codeChallenge, codeChallengeMethod, redirectURI string) string {
 	opts := []oauth2.AuthCodeOption{}
+	if redirectURI != "" {
+		opts = append(opts, oauth2.SetAuthURLParam("redirect_uri", redirectURI))
+	}
 	if codeChallenge != "" {
 		opts = append(opts,
 			oauth2.SetAuthURLParam("code_challenge", codeChallenge),

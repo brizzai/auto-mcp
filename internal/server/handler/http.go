@@ -28,7 +28,7 @@ func (h *Handler) CreateHTTPHandler(mcpHandler http.Handler) http.Handler {
 	// Set up authentication routes and middleware if enabled
 	if h.auth != nil {
 		h.auth.RegisterRoutes(mux)
-
+		logger.Info("Registered authentication routes")
 		// Always use authenticated routes when auth service is present
 		mux.Handle("/sse", h.auth.Authenticate()(mcpHandler))
 		mux.Handle("/", h.auth.Authenticate()(mcpHandler))

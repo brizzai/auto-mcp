@@ -10,7 +10,7 @@ import (
 // Provider defines the interface that all OAuth providers must implement
 type Provider interface {
 	// GetAuthURL returns the authorization URL for the provider
-	GetAuthURL(state, codeChallenge, codeChallengeMethod string) string
+	GetAuthURL(state, codeChallenge, codeChallengeMethod, redirectURI string) string
 
 	// ExchangeCode exchanges an authorization code for tokens
 	ExchangeCode(ctx context.Context, code, codeVerifier, redirectURI string) (*oauth2.Token, error)

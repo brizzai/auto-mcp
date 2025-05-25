@@ -102,7 +102,6 @@ func (h *Handler) HandleToken(w http.ResponseWriter, r *http.Request) {
 		writeError(w, "invalid_grant", err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	writeJSON(w, tokenResp)
 }
 
@@ -150,8 +149,9 @@ func (h *Handler) HandleAuthorize(w http.ResponseWriter, r *http.Request) {
 	state := r.URL.Query().Get("state")
 	codeChallenge := r.URL.Query().Get("code_challenge")
 	codeChallengeMethod := r.URL.Query().Get("code_challenge_method")
+	redirectURI := r.URL.Query().Get("redirect_uri")
 
-	authURL := h.authProvider.GetAuthURL(state, codeChallenge, codeChallengeMethod)
+	authURL := h.authProvider.GetAuthURL(state, codeChallenge, codeChallengeMethod, redirectURI)
 	http.Redirect(w, r, authURL, http.StatusFound)
 }
 

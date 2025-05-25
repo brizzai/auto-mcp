@@ -30,7 +30,6 @@ func NewGoogleProvider(cfg *config.OAuthConfig) (*GoogleProvider, error) {
 	oauth2Cfg := &oauth2.Config{
 		ClientID:     cfg.ClientID,
 		ClientSecret: cfg.ClientSecret,
-		RedirectURL:  cfg.RedirectURL,
 		Endpoint:     google.Endpoint,
 		Scopes:       constants.DefaultScopes,
 	}
@@ -41,8 +40,11 @@ func NewGoogleProvider(cfg *config.OAuthConfig) (*GoogleProvider, error) {
 	}, nil
 }
 
-func (p *GoogleProvider) GetAuthURL(state, codeChallenge, codeChallengeMethod string) string {
+func (p *GoogleProvider) GetAuthURL(state, codeChallenge, codeChallengeMethod, redirectURI string) string {
 	opts := []oauth2.AuthCodeOption{}
+	if redirectURI != "" {
+		opts = append(opts, oauth2.SetAuthURLParam("redirect_uri", redirectURI))
+	}
 	if codeChallenge != "" {
 		opts = append(opts,
 			oauth2.SetAuthURLParam("code_challenge", codeChallenge),
