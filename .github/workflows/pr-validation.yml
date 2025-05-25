@@ -11,7 +11,6 @@ permissions:
 jobs:
   secret-scan:
     runs-on: ubuntu-latest
-    # Improved conditional to be more readable
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && github.repository == 'brizzai/auto-mcp' }}
     steps:
       - name: Checkout repository
