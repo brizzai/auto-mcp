@@ -15,6 +15,14 @@ Auto MCP accepts configuration via **CLI flags**, **environment variables** (pre
 | Log level                             | `AUTO_MCP_LOGGING_LEVEL`              | `debug`                          |
 | Path to swagger file                  | `AUTO_MCP_SWAGGER_FILE`               | `/server/swagger.json`           |
 | Path to adjustment file (mcp-builder) | `AUTO_MCP_ADJUSTMENTS_FILE`           | `/server/swagger.json`           |
+| Enable OAuth                          | `AUTO_MCP_OAUTH_ENABLED`              | `true`                           |
+| OAuth provider                        | `AUTO_MCP_OAUTH_PROVIDER`             | `github`                         |
+| OAuth client ID                       | `AUTO_MCP_OAUTH_CLIENT_ID`            | `your-client-id`                 |
+| OAuth client secret                   | `AUTO_MCP_OAUTH_CLIENT_SECRET`        | `your-client-secret`             |
+| OAuth scopes                          | `AUTO_MCP_OAUTH_SCOPES`               | `openid email profile`           |
+| OAuth base URL                        | `AUTO_MCP_OAUTH_BASE_URL`             | `http://localhost:8080`          |
+| OAuth host (optional)                 | `AUTO_MCP_OAUTH_HOST`                 | `localhost`                      |
+| OAuth port (optional)                 | `AUTO_MCP_OAUTH_PORT`                 | `8080`                           |
 
 Underscores replace dots in the YAML path; nested keys keep the hierarchy (e.g., `endpoint.auth_config.token` → `AUTO_MCP_ENDPOINT_AUTH_CONFIG_TOKEN`).
 

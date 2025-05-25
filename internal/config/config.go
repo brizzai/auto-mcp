@@ -73,14 +73,15 @@ type LoggingConfig struct {
 }
 
 type OAuthConfig struct {
-	Enabled      bool   `mapstructure:"enabled" `
-	Provider     string `mapstructure:"provider"` // internal, oauth2, github, google, etc.
-	ClientID     string `mapstructure:"client_id"`
-	ClientSecret string `mapstructure:"client_secret"`
-	Scopes       string `mapstructure:"scopes"`
-	BaseURL      string `mapstructure:"base_url"` // Base URL for OAuth endpoints
-	Host         string `mapstructure:"host"`     // Server host (defaults to server.host)
-	Port         int    `mapstructure:"port"`     // Server port (defaults to server.port) // Server port (defaults to server.port)
+	Enabled      bool     `mapstructure:"enabled" `
+	Provider     string   `mapstructure:"provider"` // internal, oauth2, github, google, etc.
+	ClientID     string   `mapstructure:"client_id"`
+	ClientSecret string   `mapstructure:"client_secret"`
+	Scopes       string   `mapstructure:"scopes"`
+	BaseURL      string   `mapstructure:"base_url"` // Base URL for OAuth endpoints
+	Host         string   `mapstructure:"host"`     // Server host (defaults to server.host)
+	Port         int      `mapstructure:"port"`     // Server port (defaults to server.port) // Server port (defaults to server.port)
+	AllowOrigins []string `mapstructure:"allow_origins"`
 }
 
 // InitFlags initializes command line flags (without parsing)

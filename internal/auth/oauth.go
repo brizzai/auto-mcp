@@ -53,7 +53,7 @@ func (s *Service) RegisterRoutes(mux *http.ServeMux) {
 
 // WrapWithMiddleware wraps the mux with authentication middleware
 func (s *Service) WrapWithMiddleware(handler http.Handler) http.Handler {
-	return middleware.CORS(handler)
+	return middleware.CORSWithOrigins(s.config.AllowOrigins)(handler)
 }
 
 // Authenticate returns the authentication middleware

@@ -34,6 +34,10 @@ oauth:
   client_secret: "aa5074a412449afc2236d124049e125b427c0461"
   scopes: "openid email profile"
   base_url: "http://localhost:8080"
+  # List of allowed origins for CORS (optional)
+  allow_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
 ```
 
 ### Provider Options
@@ -71,6 +75,24 @@ oauth:
   client_secret: "your-client-secret"
   scopes: "openid email profile"
   base_url: "http://localhost:8080"
+```
+
+### Inject as an environmant
+
+Set the following environment variables to configure OAuth via environment:
+
+```bash
+export AUTO_MCP_OAUTH_ENABLED=true
+export AUTO_MCP_OAUTH_PROVIDER=github
+export AUTO_MCP_OAUTH_CLIENT_ID=your-client-id
+export AUTO_MCP_OAUTH_CLIENT_SECRET=your-client-secret
+export AUTO_MCP_OAUTH_SCOPES="openid email profile"
+export AUTO_MCP_OAUTH_BASE_URL=http://localhost:8080
+# Optional overrides:
+export AUTO_MCP_OAUTH_HOST=localhost
+export AUTO_MCP_OAUTH_PORT=8080
+# Optional: comma-separated list of allowed origins for CORS
+export AUTO_MCP_OAUTH_ALLOW_ORIGINS="http://localhost:3000,http://localhost:8080"
 ```
 
 ## OAuth Endpoints

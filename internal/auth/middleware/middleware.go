@@ -92,20 +92,30 @@ func OptionalAuthenticate(provider providers.Provider) func(http.Handler) http.H
 }
 
 // CORS middleware for MCP
-func CORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, MCP-Session-ID")
-		w.Header().Set("Access-Control-Expose-Headers", "MCP-Session-ID, WWW-Authenticate")
+func CORSWithOrigins(origins []string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if len(origins) > 0 {
+				origin := r.Header.Get("Origin")
+				for _, allowed := range origins {
+					if origin == allowed {
+						w.Header().Set("Access-Control-Allow-Origin", origin)
+						break
+					}
+				}
+			}
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, MCP-Session-ID")
+			w.Header().Set("Access-Control-Expose-Headers", "MCP-Session-ID, WWW-Authenticate")
 
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
 
-		next.ServeHTTP(w, r)
-	})
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 // extractToken extracts the Bearer token from the request
