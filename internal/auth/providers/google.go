@@ -31,7 +31,7 @@ func NewGoogleProvider(cfg *config.OAuthConfig) (*GoogleProvider, error) {
 		ClientID:     cfg.ClientID,
 		ClientSecret: cfg.ClientSecret,
 		Endpoint:     google.Endpoint,
-		Scopes:       constants.DefaultScopes,
+		Scopes:       cfg.Scopes,
 	}
 
 	return &GoogleProvider{

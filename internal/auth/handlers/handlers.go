@@ -8,6 +8,7 @@ import (
 
 	"github.com/brizzai/auto-mcp/internal/auth/constants"
 	"github.com/brizzai/auto-mcp/internal/auth/providers"
+	"github.com/brizzai/auto-mcp/internal/config"
 	"github.com/brizzai/auto-mcp/internal/logger"
 	"github.com/brizzai/auto-mcp/internal/utils"
 	"go.uber.org/zap"
@@ -17,13 +18,15 @@ import (
 type Handler struct {
 	baseURL      string
 	authProvider providers.OAuthProvider
+	cfg          *config.OAuthConfig
 }
 
 // NewHandler creates a new Handler instance
-func NewHandler(baseURL string, provider providers.OAuthProvider) *Handler {
+func NewHandler(baseURL string, provider providers.OAuthProvider, cfg *config.OAuthConfig) *Handler {
 	return &Handler{
 		baseURL:      baseURL,
 		authProvider: provider,
+		cfg:          cfg,
 	}
 }
 
@@ -37,7 +40,6 @@ func (h *Handler) HandleProtectedResourceDiscovery(w http.ResponseWriter, r *htt
 	discovery := map[string]interface{}{
 		"resource":              h.baseURL,
 		"authorization_servers": []string{h.baseURL},
-		"scopes_supported":      constants.DefaultScopes,
 		"token_types_supported": []string{constants.TokenType},
 		"resource_metadata_uri": fmt.Sprintf("%s/.well-known/oauth-protected-resource", h.baseURL),
 	}
@@ -51,6 +53,7 @@ func (h *Handler) HandleAuthorizationServerDiscovery(w http.ResponseWriter, r *h
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	logger.Debug("HandleAuthorizationServerDiscovery", zap.Any("cfg", h.cfg.Scopes))
 
 	discovery := map[string]interface{}{
 		"issuer":                                h.baseURL,
@@ -58,7 +61,7 @@ func (h *Handler) HandleAuthorizationServerDiscovery(w http.ResponseWriter, r *h
 		"token_endpoint":                        fmt.Sprintf("%s/oauth/token", h.baseURL),
 		"registration_endpoint":                 fmt.Sprintf("%s/oauth/register", h.baseURL),
 		"token_endpoint_auth_methods_supported": constants.SupportedAuthMethods,
-		"scopes_supported":                      constants.DefaultScopes,
+		"scopes_supported":                      h.cfg.Scopes,
 		"response_types_supported":              constants.SupportedResponseTypes,
 		"response_modes_supported":              constants.SupportedResponseModes,
 		"grant_types_supported":                 constants.SupportedGrantTypes,

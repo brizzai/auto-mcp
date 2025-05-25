@@ -29,25 +29,12 @@ func (h *Handler) CreateHTTPHandler(mcpHandler http.Handler) http.Handler {
 	if h.auth != nil {
 		h.auth.RegisterRoutes(mux)
 		logger.Info("Registered authentication routes")
-		// Always use authenticated routes when auth service is present
-		mux.Handle("/sse", h.auth.Authenticate()(mcpHandler))
 		mux.Handle("/", h.auth.Authenticate()(mcpHandler))
 		logger.Info("Enabled authentication for all routes")
+		return h.auth.WrapWithCors(mux)
 	} else {
 		mux.Handle("/", mcpHandler)
 		logger.Info("Running without authentication")
+		return mux
 	}
-
-	return h.wrapWithMiddleware(mux)
-}
-
-// wrapWithMiddleware wraps the handler with common middleware.
-// Currently only adds CORS if auth is enabled.
-func (h *Handler) wrapWithMiddleware(handler http.Handler) http.Handler {
-	if h.auth != nil {
-		handler = h.auth.WrapWithMiddleware(handler)
-		logger.Debug("Added CORS middleware")
-	}
-
-	return handler
 }

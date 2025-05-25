@@ -29,7 +29,7 @@ func NewService(cfg *config.OAuthConfig, provider providers.OAuthProvider) (*Ser
 		baseURL = fmt.Sprintf("http://%s:%d", cfg.Host, port)
 	}
 
-	handler := handlers.NewHandler(baseURL, provider)
+	handler := handlers.NewHandler(baseURL, provider, cfg)
 
 	return &Service{
 		config:       cfg,
@@ -51,8 +51,8 @@ func (s *Service) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/oauth/callback", s.handler.HandleAuthCallback)
 }
 
-// WrapWithMiddleware wraps the mux with authentication middleware
-func (s *Service) WrapWithMiddleware(handler http.Handler) http.Handler {
+// WrapWithCors wraps the mux with authentication middleware
+func (s *Service) WrapWithCors(handler http.Handler) http.Handler {
 	return middleware.CORSWithOrigins(s.config.AllowOrigins)(handler)
 }
 

@@ -80,7 +80,7 @@ type OAuthConfig struct {
 	Provider     string   `mapstructure:"provider"` // github or google
 	ClientID     string   `mapstructure:"client_id"`
 	ClientSecret string   `mapstructure:"client_secret"`
-	Scopes       string   `mapstructure:"scopes"`
+	Scopes       []string `mapstructure:"scopes"`
 	BaseURL      string   `mapstructure:"base_url"` // Base URL for OAuth endpoints
 	Host         string   `mapstructure:"host"`     // Server host (defaults to server.host)
 	Port         int      `mapstructure:"port"`     // Server port (defaults to server.port) // Server port (defaults to server.port)
@@ -160,6 +160,13 @@ func Load() (*Config, error) {
 	if config.OAuth != nil && config.OAuth.Enabled {
 		if config.OAuth.BaseURL == "" {
 			return nil, fmt.Errorf("oauth.base_url is required, please adjust the config or pass --oauth.base_url or AUTO_MCP_OAUTH_BASE_URL environment variable")
+		}
+	}
+
+	// Backward compatibility: if Scopes is a single string, split it
+	if config.OAuth != nil && len(config.OAuth.Scopes) == 1 {
+		if strings.Contains(config.OAuth.Scopes[0], " ") {
+			config.OAuth.Scopes = strings.Fields(config.OAuth.Scopes[0])
 		}
 	}
 

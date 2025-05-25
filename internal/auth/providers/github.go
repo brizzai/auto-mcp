@@ -25,7 +25,7 @@ func NewGitHubProvider(cfg *config.OAuthConfig) *GitHubProvider {
 			ClientID:     cfg.ClientID,
 			ClientSecret: cfg.ClientSecret,
 			Endpoint:     github.Endpoint,
-			Scopes:       []string{"user:email"},
+			Scopes:       cfg.Scopes,
 		},
 	}
 }

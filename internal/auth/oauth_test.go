@@ -77,14 +77,14 @@ func TestRegisterRoutes(t *testing.T) {
 	}
 }
 
-func TestWrapWithMiddleware(t *testing.T) {
+func TestWrapWithCors(t *testing.T) {
 	cfg := &config.OAuthConfig{BaseURL: "http://localhost:8080"}
 	provider := &mockProvider{}
 	service, _ := NewService(cfg, provider)
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(204)
 	})
-	wrapped := service.WrapWithMiddleware(h)
+	wrapped := service.WrapWithCors(h)
 	rec := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/", nil)
 	wrapped.ServeHTTP(rec, req)
