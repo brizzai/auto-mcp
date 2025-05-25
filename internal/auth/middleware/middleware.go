@@ -30,11 +30,10 @@ type AuthInfo struct {
 }
 
 // Authenticate middleware validates JWT or access token with the IDP
-func Authenticate(provider providers.Provider) func(http.Handler) http.Handler {
+func Authenticate(provider providers.OAuthProvider) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		logger.Info("Authenticate middleware", zap.Any("next", next))
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			logger.Info("Authenticate middleware request",
+			logger.Debug("Authenticate middleware request",
 				zap.String("method", r.Method),
 				zap.String("url", r.URL.String()),
 				zap.String("remote_addr", r.RemoteAddr),
@@ -64,7 +63,7 @@ func Authenticate(provider providers.Provider) func(http.Handler) http.Handler {
 }
 
 // OptionalAuthenticate allows both authenticated and unauthenticated access
-func OptionalAuthenticate(provider providers.Provider) func(http.Handler) http.Handler {
+func OptionalAuthenticate(provider providers.OAuthProvider) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token := extractToken(r)

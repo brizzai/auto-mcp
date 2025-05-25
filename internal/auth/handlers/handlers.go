@@ -16,11 +16,11 @@ import (
 // Handler handles OAuth-related HTTP requests
 type Handler struct {
 	baseURL      string
-	authProvider providers.Provider
+	authProvider providers.OAuthProvider
 }
 
 // NewHandler creates a new Handler instance
-func NewHandler(baseURL string, provider providers.Provider) *Handler {
+func NewHandler(baseURL string, provider providers.OAuthProvider) *Handler {
 	return &Handler{
 		baseURL:      baseURL,
 		authProvider: provider,

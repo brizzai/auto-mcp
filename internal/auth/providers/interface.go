@@ -7,8 +7,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Provider defines the interface that all OAuth providers must implement
-type Provider interface {
+// OAuthProvider defines the interface that all OAuth providers must implement
+type OAuthProvider interface {
 	// GetAuthURL returns the authorization URL for the provider
 	GetAuthURL(state, codeChallenge, codeChallengeMethod, redirectURI string) string
 

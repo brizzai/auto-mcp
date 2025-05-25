@@ -14,12 +14,12 @@ import (
 // Service represents the OAuth service
 type Service struct {
 	config       *config.OAuthConfig
-	authProvider providers.Provider
+	authProvider providers.OAuthProvider
 	handler      *handlers.Handler
 }
 
 // NewService creates a new OAuth service
-func NewService(cfg *config.OAuthConfig, provider providers.Provider) (*Service, error) {
+func NewService(cfg *config.OAuthConfig, provider providers.OAuthProvider) (*Service, error) {
 	baseURL := cfg.BaseURL
 	if baseURL == "" {
 		port := cfg.Port
@@ -67,6 +67,6 @@ func (s *Service) OptionalAuthenticate() func(http.Handler) http.Handler {
 }
 
 // GetProvider returns the configured auth provider
-func (s *Service) GetProvider() providers.Provider {
+func (s *Service) GetProvider() providers.OAuthProvider {
 	return s.authProvider
 }

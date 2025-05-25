@@ -86,7 +86,7 @@ func NewServer(cfg *config.Config, p parser.Parser, requester *requester.HTTPReq
 }
 
 func (s *Server) setupAuth() error {
-	var provider providers.Provider
+	var provider providers.OAuthProvider
 	var err error
 
 	switch s.config.OAuth.Provider {

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/pflag"
@@ -116,12 +117,15 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
-	// Merge /config/config.yaml (overrides overlapping keys)
-	viper.SetConfigFile("/config/config.yaml")
-	if err := viper.MergeInConfig(); err != nil {
-		// It's OK if this file doesn't exist, only error if it's another problem
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, err
+	//Loading additionals config files
+	if _, err := os.Stat("/config/config.yaml"); err == nil {
+		viper.SetConfigFile("/config/config.yaml")
+		// Merge /config/config.yaml (overrides overlapping keys)
+		if err := viper.MergeInConfig(); err != nil {
+			// It's OK if this file doesn't exist, only error if it's another problem
+			if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+				return nil, err
+			}
 		}
 	}
 
