@@ -174,6 +174,14 @@ docker run --rm -i \
 
 ---
 
+## 🔐 OAuth Support
+
+Auto MCP supports OAuth 2.1 authentication, including PKCE, dynamic client registration, and multiple providers (internal, GitHub, Google). This allows you to secure your MCP server with industry-standard authentication flows.
+
+See the [OAuth Usage Guide](docs/oauth-usage.md) for detailed setup instructions, endpoint descriptions, and testing tips.
+
+---
+
 ## 🐳 Running with Docker
 
 1. **Run in `stdio` mode**:

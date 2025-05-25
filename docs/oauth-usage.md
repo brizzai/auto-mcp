@@ -29,9 +29,11 @@ Add OAuth configuration to your `config.yaml`:
 ```yaml
 oauth:
   enabled: true
-  provider: internal # For testing/development
-  base_url: "http://localhost:3000"
-  secure_cookies: false
+  provider: github
+  client_id: "Ov23liozYecthHWUsYo6"
+  client_secret: "aa5074a412449afc2236d124049e125b427c0461"
+  scopes: "openid email profile"
+  base_url: "http://localhost:8080"
 ```
 
 ### Provider Options
@@ -42,7 +44,7 @@ oauth:
 oauth:
   enabled: true
   provider: internal
-  base_url: "http://localhost:3000"
+  base_url: "http://localhost:8080"
 ```
 
 This provider automatically approves all authorization requests for testing.
@@ -56,10 +58,10 @@ For production, use external providers:
 oauth:
   enabled: true
   provider: github
-  client_id: "your-github-client-id"
-  client_secret: "your-github-client-secret"
-  redirect_url: "http://localhost:3000/auth/callback"
-  scopes: "read:user user:email"
+  client_id: "Ov23liozYecthHWUsYo6"
+  client_secret: "aa5074a412449afc2236d124049e125b427c0461"
+  scopes: "openid email profile"
+  base_url: "http://localhost:8080"
 
 # Google
 oauth:
@@ -67,20 +69,8 @@ oauth:
   provider: google
   client_id: "your-client-id.apps.googleusercontent.com"
   client_secret: "your-client-secret"
-  redirect_url: "http://localhost:3000/auth/callback"
   scopes: "openid email profile"
-
-# Generic OAuth2
-oauth:
-  enabled: true
-  provider: oauth2
-  client_id: "your-client-id"
-  client_secret: "your-client-secret"
-  redirect_url: "http://localhost:3000/auth/callback"
-  auth_url: "https://provider.com/oauth/authorize"
-  token_url: "https://provider.com/oauth/token"
-  user_info_url: "https://provider.com/api/user"
-  scopes: "custom scopes"
+  base_url: "http://localhost:8080"
 ```
 
 ## OAuth Endpoints
@@ -101,61 +91,13 @@ oauth:
 ### Bearer Token in Header
 
 ```bash
-curl -H "Authorization: Bearer <token>" http://localhost:3000/
+curl -H "Authorization: Bearer <token>" http://localhost:8080/
 ```
 
 ### Token in Query Parameter (for SSE)
 
 ```bash
-curl "http://localhost:3000/sse?token=<token>"
-```
-
-## PKCE (Proof Key for Code Exchange)
-
-The implementation supports PKCE for enhanced security:
-
-```javascript
-// Generate code verifier and challenge
-const codeVerifier = generateRandomString(128);
-const codeChallenge = base64url(sha256(codeVerifier));
-
-// Authorization request
-const authUrl = `/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&code_challenge=${codeChallenge}&code_challenge_method=S256`;
-
-// Token exchange
-const tokenResponse = await fetch("/oauth/token", {
-  method: "POST",
-  headers: { "Content-Type": "application/x-www-form-urlencoded" },
-  body: new URLSearchParams({
-    grant_type: "authorization_code",
-    code: authorizationCode,
-    code_verifier: codeVerifier,
-    client_id: clientId,
-    redirect_uri: redirectUri,
-  }),
-});
-```
-
-## Accessing Authentication in Tools
-
-Tools can access authentication information from the request context:
-
-```go
-func (s *MCPServer) setupTools() {
-    s.mcp.AddTool(tool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-        // Authentication info is available in context
-        if authInfo, ok := ctx.Value("auth").(map[string]interface{}); ok {
-            userID := authInfo["user_id"].(string)
-            token := authInfo["token"].(string)
-
-            // Use auth info for API calls
-            resp, err := makeAuthenticatedAPICall(token, request.GetArguments())
-            // ...
-        }
-
-        // Tool implementation
-    })
-}
+curl "http://localhost:8080/sse?token=<token>"
 ```
 
 ## Testing with MCP Clients
@@ -164,8 +106,11 @@ func (s *MCPServer) setupTools() {
 
 Test your OAuth implementation with `mcp-remote`:
 
+> for this to work you need to add the mcp-remote callback url, (http://localhost:17623/oauth/callback)
+
 ```bash
-npx mcp-remote http://localhost:3000 --transport sse
+npx mcp-remote http://localhost:8080 --transport sse
+
 ```
 
 The client will automatically:
@@ -176,41 +121,20 @@ The client will automatically:
 
 ### Testing OAuth Flow Manually
 
-1. **Get Discovery Info**:
+You can use the [MCP Inspector](https://www.npmjs.com/package/@modelcontextprotocol/inspector) tool to interactively test any step of the OAuth flow. Run the following command:
 
 ```bash
-curl http://localhost:3000/.well-known/oauth-protected-resource
+npx @modelcontextprotocol/inspector http://localhost:8080
 ```
 
-2. **Authorize** (in browser):
+This tool allows you to:
 
-```
-http://localhost:3000/oauth/authorize?client_id=test&redirect_uri=http://localhost:8080/callback&state=random-state&code_challenge=challenge&code_challenge_method=plain
-```
+- Discover OAuth endpoints
+- Initiate and debug the authorization flow
+- Exchange tokens
+- Inspect responses and headers
 
-3. **Exchange Code for Token**:
-
-```bash
-curl -X POST http://localhost:3000/oauth/token \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=authorization_code&code=<code>&code_verifier=challenge&client_id=test&redirect_uri=http://localhost:8080/callback"
-```
-
-## Security Considerations
-
-1. **HTTPS in Production** - Always use HTTPS in production. Set `secure_cookies: true`.
-2. **PKCE Required** - The implementation enforces PKCE when code_challenge is provided.
-3. **Token Expiry** - Tokens expire after 1 hour by default.
-4. **Session Cleanup** - Expired sessions are automatically cleaned up.
-
-## Troubleshooting
-
-### Common Issues
-
-1. **"WWW-Authenticate header missing"** - The client expects proper OAuth discovery endpoints
-2. **"Invalid code_verifier"** - PKCE validation failed, ensure proper challenge/verifier generation
-3. **"Token expired"** - Implement token refresh or re-authenticate
-4. **Discovery endpoint 404** - Ensure OAuth is enabled in config
+It's useful for manual testing, debugging, and learning how the MCP OAuth process works step by step.
 
 ### Debug Logging
 
