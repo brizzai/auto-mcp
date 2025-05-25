@@ -1,7 +1,7 @@
 name: Pull Request Validation
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, edited, synchronize, reopened]
 
 permissions:
@@ -35,10 +35,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const prNumber = github.context.payload.pull_request.number;
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
+              issue_number: prNumber,
               body: `❌ **Secret Detection Alert**
 
               Potential secrets were detected in this pull request. Please review the workflow logs for details.
