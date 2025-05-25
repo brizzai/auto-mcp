@@ -60,6 +60,8 @@ type ServerConfig struct {
 	Host    string     `mapstructure:"host"`
 	Timeout string     `mapstructure:"timeout"`
 	Mode    ServerMode `mapstructure:"mode"`
+	Name    string     `mapstructure:"name"`
+	Version string     `mapstructure:"version"`
 }
 
 type LoggingConfig struct {
@@ -152,15 +154,8 @@ func Load() (*Config, error) {
 
 	// If OAuth is enabled, inherit server settings if not specified
 	if config.OAuth != nil && config.OAuth.Enabled {
-		if config.OAuth.Host == "" {
-			config.OAuth.Host = config.Server.Host
-		}
-		if config.OAuth.Port == 0 {
-			config.OAuth.Port = config.Server.Port
-		}
-		// Set base URL if not specified
 		if config.OAuth.BaseURL == "" {
-			config.OAuth.BaseURL = fmt.Sprintf("http://%s:%d", config.OAuth.Host, config.OAuth.Port)
+			return nil, fmt.Errorf("oauth.base_url is required, please adjust the config or pass --oauth.base_url or AUTO_MCP_OAUTH_BASE_URL environment variable")
 		}
 	}
 

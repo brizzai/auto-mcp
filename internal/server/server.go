@@ -22,10 +22,6 @@ import (
 )
 
 const (
-	// serverName is the name of the MCP server
-	serverName = "Auto MCP"
-	// serverVersion is the version of the MCP server
-	serverVersion = "1.0.0"
 	// shutdownTimeout is the maximum time to wait for server shutdown
 	shutdownTimeout = 5 * time.Second
 )
@@ -61,8 +57,8 @@ func NewServer(cfg *config.Config, p parser.Parser, requester *requester.HTTPReq
 	}
 
 	mcpServer := mcpserver.NewMCPServer(
-		serverName,
-		serverVersion,
+		cfg.Server.Name,
+		cfg.Server.Version,
 	)
 
 	srv := &Server{
@@ -205,7 +201,7 @@ func (s *Server) ServeSTDIO(ctx context.Context) error {
 func (s *Server) Start(ctx context.Context) error {
 	logger.Info("Starting server",
 		zap.String("mode", string(s.config.Server.Mode)),
-		zap.String("version", serverVersion),
+		zap.String("version", s.config.Server.Version),
 	)
 
 	switch s.config.Server.Mode {

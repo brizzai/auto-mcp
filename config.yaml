@@ -3,6 +3,8 @@ server:
   port: 8080
   host: "localhost"
   timeout: 30s
+  name: "Auto MCP"
+  version: "1.0.0"
 
 logging:
   level: "info"

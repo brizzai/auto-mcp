@@ -23,6 +23,8 @@ Auto MCP accepts configuration via **CLI flags**, **environment variables** (pre
 | OAuth base URL                        | `AUTO_MCP_OAUTH_BASE_URL`             | `http://localhost:8080/oauth`    |
 | OAuth host (optional)                 | `AUTO_MCP_OAUTH_HOST`                 | `localhost`                      |
 | OAuth port (optional)                 | `AUTO_MCP_OAUTH_PORT`                 | `8080`                           |
+| Server name (display)                 | `AUTO_MCP_SERVER_NAME`                | `Auto MCP`                       |
+| Server version (display)              | `AUTO_MCP_SERVER_VERSION`             | `1.0.0`                          |
 
 Underscores replace dots in the YAML path; nested keys keep the hierarchy (e.g., `endpoint.auth_config.token` → `AUTO_MCP_ENDPOINT_AUTH_CONFIG_TOKEN`).
 
@@ -104,6 +106,8 @@ server:
   port: 8080 # Port to bind (for http/sse)
   host: "0.0.0.0" # Host to bind
   timeout: 30s # Request timeout (e.g., 30s, 1m)
+  name: "Auto MCP" # Server display name
+  version: "1.0.0" # Server version string
 
 logging:
   level: "info" # Log level: debug, info, warn, error
