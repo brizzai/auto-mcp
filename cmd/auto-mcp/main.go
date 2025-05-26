@@ -63,11 +63,17 @@ func main() {
 		// Config Provider
 		fx.Provide(func() *config.Config { return cfg }),
 		fx.Provide(func() *config.EndpointConfig { return &cfg.EndpointConfig }),
-		fx.Invoke(func(lc fx.Lifecycle, srv *server.MCPServer) {
+		fx.Invoke(func(lc fx.Lifecycle, srv *server.Server) {
 			appCtx, cancel := context.WithCancel(context.Background())
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
-					return srv.Start(appCtx)
+					go func() {
+						if err := srv.Start(appCtx); err != nil {
+							logger.Error("Server exited with error", zap.Error(err))
+							os.Exit(1)
+						}
+					}()
+					return nil
 				},
 				OnStop: func(ctx context.Context) error {
 					cancel()

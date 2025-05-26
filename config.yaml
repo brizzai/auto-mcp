@@ -3,6 +3,8 @@ server:
   port: 8080
   host: "localhost"
   timeout: 30s
+  name: "Auto MCP"
+  version: "1.0.0"
 
 logging:
   level: "info"
@@ -17,4 +19,13 @@ endpoint:
   base_url: "http://localhost:3000"
   auth_type: "bearer"
   auth_config:
-    token: "123"
+    token: "enter_your_token_here"
+
+oauth:
+  enabled: true
+  provider: github
+  client_id: "client_id"
+  client_secret: "client_secret"
+  scopes: "openid email profile"
+  allow_origins:
+    - "http://127.0.0.1:6274" # mcp inspector default endpoint

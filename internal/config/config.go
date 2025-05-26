@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/pflag"
@@ -26,6 +27,7 @@ type Config struct {
 	EndpointConfig  EndpointConfig `mapstructure:"endpoint"`
 	SwaggerFile     string         `mapstructure:"swagger_file"`
 	AdjustmentsFile string         `mapstructure:"adjustments_file"`
+	OAuth           *OAuthConfig   `mapstructure:"oauth"`
 }
 
 // AuthType represents the type of authentication to use
@@ -51,6 +53,7 @@ type ServerMode string
 const (
 	ServerModeSSE   ServerMode = "sse"
 	ServerModeSTDIO ServerMode = "stdio"
+	ServerModeHTTP  ServerMode = "http"
 )
 
 type ServerConfig struct {
@@ -58,6 +61,8 @@ type ServerConfig struct {
 	Host    string     `mapstructure:"host"`
 	Timeout string     `mapstructure:"timeout"`
 	Mode    ServerMode `mapstructure:"mode"`
+	Name    string     `mapstructure:"name"`
+	Version string     `mapstructure:"version"`
 }
 
 type LoggingConfig struct {
@@ -70,16 +75,26 @@ type LoggingConfig struct {
 	DisableConsole    bool   `mapstructure:"disable_console"`
 }
 
+type OAuthConfig struct {
+	Enabled      bool     `mapstructure:"enabled" `
+	Provider     string   `mapstructure:"provider"` // github or google
+	ClientID     string   `mapstructure:"client_id"`
+	ClientSecret string   `mapstructure:"client_secret"`
+	Scopes       []string `mapstructure:"scopes"`
+	AllowOrigins []string `mapstructure:"allow_origins"`
+}
+
 // InitFlags initializes command line flags (without parsing)
 func InitFlags() {
-	pflag.String("mode", string(ServerModeSTDIO), "Server mode (stdio|sse)")
+	pflag.String("mode", string(ServerModeSTDIO), "Server mode (stdio|sse|http)")
 	pflag.String("swagger-file", "", "Path to the swagger file")
 	pflag.String("adjustments-file", "", "Path to the adjustments file")
 	// Note: no pflag.Parse() here as it's called in main.go
 }
 
 func Load() (*Config, error) {
-	// Initialize viper
+	viper.Reset() // Ensure clean state
+
 	viper.SetEnvPrefix("AUTO_MCP")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	viper.AutomaticEnv()
@@ -88,17 +103,27 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 
-	// Load main config
+	// Load ./config.yaml first
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
 
-	// Follows Linux convention of checking the local directory first, then system-wide locations
-	// This is needed for Docker container in Dockerfile.goreleaser where config is mounted at /etc/auto-mcp
 	viper.AddConfigPath("/etc/auto-mcp")
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, err
+	}
+
+	//Loading additionals config files
+	if _, err := os.Stat("/config/config.yaml"); err == nil {
+		viper.SetConfigFile("/config/config.yaml")
+		// Merge /config/config.yaml (overrides overlapping keys)
+		if err := viper.MergeInConfig(); err != nil {
+			// It's OK if this file doesn't exist, only error if it's another problem
+			if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+				return nil, err
+			}
+		}
 	}
 
 	var config Config
@@ -108,7 +133,7 @@ func Load() (*Config, error) {
 	// Set server mode from flag
 	if mode := viper.GetString("mode"); mode != "" {
 		switch ServerMode(mode) {
-		case ServerModeSSE, ServerModeSTDIO:
+		case ServerModeSSE, ServerModeSTDIO, ServerModeHTTP:
 			config.Server.Mode = ServerMode(mode)
 		}
 	}
@@ -126,6 +151,12 @@ func Load() (*Config, error) {
 	// Set adjustments file from flag or environment
 	if adjustmentsFile := viper.GetString("adjustments-file"); adjustmentsFile != "" {
 		config.AdjustmentsFile = adjustmentsFile
+	}
+
+	if config.OAuth != nil && len(config.OAuth.Scopes) == 1 {
+		if strings.Contains(config.OAuth.Scopes[0], " ") {
+			config.OAuth.Scopes = strings.Fields(config.OAuth.Scopes[0])
+		}
 	}
 
 	return &config, nil

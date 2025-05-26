@@ -1,0 +1,30 @@
+server:
+  mode: http
+  port: 8080
+  host: "0.0.0.0"
+  timeout: 30s
+  name: "Auto MCP"
+  version: "1.0.0"
+
+logging:
+  level: "info"
+  format: "json"
+  color: true
+  disable_stacktrace: false
+  output_path: "logs/auto-mcp.log"
+  append_to_file: true
+  disable_console: false
+
+endpoint:
+  base_url: "https://petstore.swagger.io/v2"
+  auth_type: "none"
+
+oauth:
+  enabled: false
+  provider: github
+  client_id: ""
+  client_secret: ""
+  scopes: ""
+  allow_origins: []
+
+swagger_file: "/config/swagger.json"
