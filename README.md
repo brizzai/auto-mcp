@@ -61,8 +61,6 @@ Easily tailor your Swagger/OpenAPI file for optimal MCP integration. The MCP Con
 
 ## 📚 Use Cases
 
-## Use Cases
-
 1. **Rapid Prototyping:** Wrap any REST API as an MCP server in seconds—ideal for testing ideas or building AI tools fast.
 
 2. **Bridge Legacy Services:** Expose legacy or internal systems as MCP endpoints without rewriting them.
