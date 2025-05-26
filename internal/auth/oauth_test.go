@@ -34,9 +34,7 @@ func (m *mockProvider) ValidateAccessToken(ctx context.Context, token string) (*
 }
 
 func TestNewService(t *testing.T) {
-	cfg := &config.OAuthConfig{
-		BaseURL: "http://localhost:8080",
-	}
+	cfg := &config.OAuthConfig{}
 	provider := &mockProvider{}
 	service, err := NewService(cfg, provider)
 	if err != nil {
@@ -54,7 +52,7 @@ func TestNewService(t *testing.T) {
 }
 
 func TestRegisterRoutes(t *testing.T) {
-	cfg := &config.OAuthConfig{BaseURL: "http://localhost:8080"}
+	cfg := &config.OAuthConfig{}
 	provider := &mockProvider{}
 	service, _ := NewService(cfg, provider)
 	mux := http.NewServeMux()
@@ -78,7 +76,7 @@ func TestRegisterRoutes(t *testing.T) {
 }
 
 func TestWrapWithCors(t *testing.T) {
-	cfg := &config.OAuthConfig{BaseURL: "http://localhost:8080"}
+	cfg := &config.OAuthConfig{}
 	provider := &mockProvider{}
 	service, _ := NewService(cfg, provider)
 	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -94,7 +92,7 @@ func TestWrapWithCors(t *testing.T) {
 }
 
 func TestGetProvider(t *testing.T) {
-	cfg := &config.OAuthConfig{BaseURL: "http://localhost:8080"}
+	cfg := &config.OAuthConfig{}
 	provider := &mockProvider{}
 	service, _ := NewService(cfg, provider)
 	if !reflect.DeepEqual(service.GetProvider(), provider) {

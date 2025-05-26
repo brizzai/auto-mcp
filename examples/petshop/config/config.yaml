@@ -25,7 +25,6 @@ oauth:
   client_id: ""
   client_secret: ""
   scopes: ""
-  base_url: ""
   allow_origins: []
 
 swagger_file: "/config/swagger.json"

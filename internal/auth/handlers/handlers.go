@@ -16,15 +16,13 @@ import (
 
 // Handler handles OAuth-related HTTP requests
 type Handler struct {
-	baseURL      string
 	authProvider providers.OAuthProvider
 	cfg          *config.OAuthConfig
 }
 
 // NewHandler creates a new Handler instance
-func NewHandler(baseURL string, provider providers.OAuthProvider, cfg *config.OAuthConfig) *Handler {
+func NewHandler(provider providers.OAuthProvider, cfg *config.OAuthConfig) *Handler {
 	return &Handler{
-		baseURL:      baseURL,
 		authProvider: provider,
 		cfg:          cfg,
 	}
@@ -38,10 +36,10 @@ func (h *Handler) HandleProtectedResourceDiscovery(w http.ResponseWriter, r *htt
 	}
 
 	discovery := map[string]interface{}{
-		"resource":              h.baseURL,
-		"authorization_servers": []string{h.baseURL},
+		"resource":              r.Host,
+		"authorization_servers": []string{r.Host},
 		"token_types_supported": []string{constants.TokenType},
-		"resource_metadata_uri": fmt.Sprintf("%s/.well-known/oauth-protected-resource", h.baseURL),
+		"resource_metadata_uri": fmt.Sprintf("%s/.well-known/oauth-protected-resource", r.Host),
 	}
 
 	utils.WriteJSON(w, discovery)
@@ -53,13 +51,11 @@ func (h *Handler) HandleAuthorizationServerDiscovery(w http.ResponseWriter, r *h
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	logger.Debug("HandleAuthorizationServerDiscovery", zap.Any("cfg", h.cfg.Scopes))
-
 	discovery := map[string]interface{}{
-		"issuer":                                h.baseURL,
-		"authorization_endpoint":                fmt.Sprintf("%s/oauth/authorize", h.baseURL),
-		"token_endpoint":                        fmt.Sprintf("%s/oauth/token", h.baseURL),
-		"registration_endpoint":                 fmt.Sprintf("%s/oauth/register", h.baseURL),
+		"issuer":                                r.URL.Host,
+		"authorization_endpoint":                fmt.Sprintf("%s/oauth/authorize", r.Host),
+		"token_endpoint":                        fmt.Sprintf("%s/oauth/token", r.Host),
+		"registration_endpoint":                 fmt.Sprintf("%s/oauth/register", r.Host),
 		"token_endpoint_auth_methods_supported": constants.SupportedAuthMethods,
 		"scopes_supported":                      h.cfg.Scopes,
 		"response_types_supported":              constants.SupportedResponseTypes,

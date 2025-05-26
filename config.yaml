@@ -27,6 +27,5 @@ oauth:
   client_id: "client_id"
   client_secret: "client_secret"
   scopes: "openid email profile"
-  base_url: "http://localhost:8080"
   allow_origins:
     - "http://127.0.0.1:6274" # mcp inspector default endpoint

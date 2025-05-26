@@ -34,7 +34,6 @@ oauth:
   client_id: "<client_id>"
   client_secret: "<cleint_secret>"
   scopes: "openid email profile"
-  base_url: "http://localhost:8080" # issue (this mcp) endpoint
   # List of allowed origins for CORS (optional)
   allow_origins:
     - "http://localhost:17623" # LLMApp origin (example: npx mcp-remote default port )
@@ -50,7 +49,6 @@ oauth:
   client_id: "<client_id>"
   client_secret: "<cleint_secret>"
   scopes: "openid email profile"
-  base_url: "http://localhost:8080"
 
 # Google
 oauth:
@@ -59,7 +57,6 @@ oauth:
   client_id: "your-client-id.apps.googleusercontent.com"
   client_secret: "your-client-secret"
   scopes: "openid email profile"
-  base_url: "http://localhost:8080"
 ```
 
 ### Inject as an environmant
@@ -72,7 +69,6 @@ export AUTO_MCP_OAUTH_PROVIDER=github  # support for `github` / `google`
 export AUTO_MCP_OAUTH_CLIENT_ID=your-client-id
 export AUTO_MCP_OAUTH_CLIENT_SECRET=your-client-secret
 export AUTO_MCP_OAUTH_SCOPES="openid email profile"
-export AUTO_MCP_OAUTH_BASE_URL=http://localhost:8080
 # Optional: comma-separated list of allowed origins for CORS
 export AUTO_MCP_OAUTH_ALLOW_ORIGINS="http://localhost:17623"
 ```

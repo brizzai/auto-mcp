@@ -1,10 +1,8 @@
 package auth
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/brizzai/auto-mcp/internal/auth/constants"
 	"github.com/brizzai/auto-mcp/internal/auth/handlers"
 	"github.com/brizzai/auto-mcp/internal/auth/middleware"
 	"github.com/brizzai/auto-mcp/internal/auth/providers"
@@ -20,16 +18,7 @@ type Service struct {
 
 // NewService creates a new OAuth service
 func NewService(cfg *config.OAuthConfig, provider providers.OAuthProvider) (*Service, error) {
-	baseURL := cfg.BaseURL
-	if baseURL == "" {
-		port := cfg.Port
-		if port == 0 {
-			port = constants.DefaultPort
-		}
-		baseURL = fmt.Sprintf("http://%s:%d", cfg.Host, port)
-	}
-
-	handler := handlers.NewHandler(baseURL, provider, cfg)
+	handler := handlers.NewHandler(provider, cfg)
 
 	return &Service{
 		config:       cfg,

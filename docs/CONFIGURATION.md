@@ -20,7 +20,6 @@ Auto MCP accepts configuration via **CLI flags**, **environment variables** (pre
 | OAuth client ID                       | `AUTO_MCP_OAUTH_CLIENT_ID`            | `your-client-id`                 |
 | OAuth client secret                   | `AUTO_MCP_OAUTH_CLIENT_SECRET`        | `your-client-secret`             |
 | OAuth scopes                          | `AUTO_MCP_OAUTH_SCOPES`               | `openid email profile`           |
-| OAuth base URL                        | `AUTO_MCP_OAUTH_BASE_URL`             | `http://localhost:8080/oauth`    |
 | OAuth host (optional)                 | `AUTO_MCP_OAUTH_HOST`                 | `localhost`                      |
 | OAuth port (optional)                 | `AUTO_MCP_OAUTH_PORT`                 | `8080`                           |
 | Server name (display)                 | `AUTO_MCP_SERVER_NAME`                | `Auto MCP`                       |
@@ -130,7 +129,6 @@ oauth:
   client_id: "" # OAuth client ID
   client_secret: "" # OAuth client secret
   scopes: "" # OAuth scopes (space-separated)
-  base_url: "" # OAuth base URL (optional, usually auto-set)
   allow_origins: [] # List of allowed CORS origins
 
 swagger_file: "/config/swagger.json" # Path to OpenAPI/Swagger file
