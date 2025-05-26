@@ -1,0 +1,53 @@
+name: Pull Request Validation
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  pull-requests: write  # Required to create PR comments
+  contents: read        # Required to checkout code
+
+jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && github.repository == 'brizzai/auto-mcp' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for secrets
+        id: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          GITLEAKS_NOTIFY_USER_LIST: ${{ vars.GITLEAKS_NOTIFY_USER_LIST }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+      - name: Comment on PR if secrets are found
+        if: steps.gitleaks.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = github.context.payload.pull_request.number;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: `❌ **Secret Detection Alert**
+
+              Potential secrets were detected in this pull request. Please review the workflow logs for details.
+
+              **Secrets should never be committed to repositories!**
+
+              * Remove the detected secrets from your code
+              * Consider using GitHub Actions secrets, environment variables, or a secure secret manager
+              * Rotate any leaked credentials immediately
+
+              Please fix these issues before proceeding.`
+            });
