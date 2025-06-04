@@ -133,10 +133,7 @@ func (s *Server) setupTools() error {
 func (s *Server) ServeSSE(ctx context.Context) error {
 	logger.Info("Starting SSE server")
 
-	sseServer := mcpserver.NewSSEServer(
-		s.mcp,
-		mcpserver.WithBaseURL(fmt.Sprintf("http://%s:%d", s.config.Server.Host, s.config.Server.Port)),
-	)
+	sseServer := mcpserver.NewSSEServer(s.mcp)
 
 	return s.serveHTTP(ctx, sseServer, "SSE")
 }
