@@ -9,7 +9,7 @@ require (
 	github.com/coreos/go-oidc/v3 v3.14.1
 	github.com/getkin/kin-openapi v0.132.0
 	github.com/google/go-cmp v0.7.0
-	github.com/mark3labs/mcp-go v0.31.0
+	github.com/mark3labs/mcp-go v0.32.0
 	github.com/pterm/pterm v0.12.80
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
