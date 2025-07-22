@@ -11,6 +11,8 @@ type RouteConfig struct {
 	Description string            `json:"description,omitempty"`
 	Headers     map[string]string `json:"headers"`
 	Parameters  map[string]string `json:"parameters"`
+	// Security requirements from OpenAPI spec
+	RequiresAuth bool `json:"requires_auth"`
 	// Method specific configurations
 	MethodConfig MethodConfig `json:"method_config"`
 }

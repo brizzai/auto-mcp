@@ -125,7 +125,7 @@ func (s *Server) setupTools() error {
 			continue
 		}
 
-		s.mcp.AddTool(tool, s.tool.CreateHandler(&tool, executor))
+		s.mcp.AddTool(tool, s.tool.CreateHandler(&tool, executor, route.RouteConfig))
 	}
 	return nil
 }

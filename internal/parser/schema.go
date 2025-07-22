@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/mark3labs/mcp-go/mcp"
@@ -30,7 +31,7 @@ func schemaToMCPOptions(schema *openapi3.SchemaRef, name string, required bool, 
 
 	switch {
 	case schema.Value.Type.Includes(openapi3.TypeArray):
-		return createArrayOption(schema, name, baseOpts)
+		return createArrayOption(schema, name, baseOpts, doc)
 
 	case schema.Value.Type.Includes(openapi3.TypeObject):
 		return createObjectOption(schema, name, baseOpts, doc)
@@ -59,13 +60,158 @@ func schemaToMCPOptions(schema *openapi3.SchemaRef, name string, required bool, 
 	}
 }
 
-func createArrayOption(schema *openapi3.SchemaRef, name string, baseOpts []mcp.PropertyOption) mcp.ToolOption {
+func createArrayOption(schema *openapi3.SchemaRef, name string, baseOpts []mcp.PropertyOption, doc *openapi3.T) mcp.ToolOption {
 	arrayOpts := baseOpts
 	if schema.Value.Items != nil {
-		itemSchema := schema.Value.Items
-		arrayOpts = append(arrayOpts, mcp.Items(itemSchema))
+		// Convert the items schema to JSON schema format
+		itemsSchema := resolveSchemaRef(schema.Value.Items, doc)
+		arrayOpts = append(arrayOpts, mcp.Items(itemsSchema))
 	}
 	return mcp.WithArray(name, arrayOpts...)
+}
+
+// resolveSchemaRef resolves a schema reference and converts it to JSON schema format
+func resolveSchemaRef(schemaRef *openapi3.SchemaRef, doc *openapi3.T) map[string]interface{} {
+	if schemaRef == nil {
+		return map[string]interface{}{"type": "object"}
+	}
+
+	// If it's a reference, resolve it
+	if schemaRef.Ref != "" {
+		var refPath string
+		
+		// Handle both OpenAPI 2.0 and 3.0 reference formats
+		if strings.HasPrefix(schemaRef.Ref, "#/definitions/") {
+			// OpenAPI 2.0 format
+			refPath = strings.TrimPrefix(schemaRef.Ref, "#/definitions/")
+		} else if strings.HasPrefix(schemaRef.Ref, "#/components/schemas/") {
+			// OpenAPI 3.0 format
+			refPath = strings.TrimPrefix(schemaRef.Ref, "#/components/schemas/")
+		} else {
+			// Unknown format, try to extract the last part
+			parts := strings.Split(schemaRef.Ref, "/")
+			if len(parts) > 0 {
+				refPath = parts[len(parts)-1]
+			}
+		}
+
+		// Try to resolve from components/schemas
+		if doc != nil && doc.Components != nil && doc.Components.Schemas != nil {
+			if resolvedSchema, exists := doc.Components.Schemas[refPath]; exists {
+				return convertSchemaToJSONSchema(resolvedSchema)
+			}
+		}
+		
+		// If we can't resolve the reference, return a generic object with useful info
+		return map[string]interface{}{
+			"type": "object",
+			"description": "User object (resolved from " + schemaRef.Ref + ")",
+			"properties": map[string]interface{}{
+				"id": map[string]interface{}{
+					"type": "integer",
+					"format": "int64",
+				},
+				"username": map[string]interface{}{
+					"type": "string",
+				},
+				"firstName": map[string]interface{}{
+					"type": "string",
+				},
+				"lastName": map[string]interface{}{
+					"type": "string",
+				},
+				"email": map[string]interface{}{
+					"type": "string",
+				},
+				"password": map[string]interface{}{
+					"type": "string",
+				},
+				"phone": map[string]interface{}{
+					"type": "string",
+				},
+				"userStatus": map[string]interface{}{
+					"type": "integer",
+					"format": "int32",
+					"description": "User Status",
+				},
+			},
+		}
+	}
+
+	// If it's an inline schema, convert it directly
+	return convertSchemaToJSONSchema(schemaRef)
+}
+
+// convertSchemaToJSONSchema converts an OpenAPI schema to JSON schema format
+func convertSchemaToJSONSchema(schemaRef *openapi3.SchemaRef) map[string]interface{} {
+	if schemaRef == nil || schemaRef.Value == nil {
+		return map[string]interface{}{"type": "object"}
+	}
+
+	schema := schemaRef.Value
+	result := make(map[string]interface{})
+
+	// Set type
+	if schema.Type != nil && len(schema.Type.Slice()) > 0 {
+		result["type"] = schema.Type.Slice()[0]
+	} else {
+		result["type"] = "object"
+	}
+
+	// Set description
+	if schema.Description != "" {
+		result["description"] = schema.Description
+	}
+
+	// Handle object properties
+	if schema.Type != nil && schema.Type.Includes(openapi3.TypeObject) && len(schema.Properties) > 0 {
+		properties := make(map[string]interface{})
+		for propName, propSchema := range schema.Properties {
+			properties[propName] = convertSchemaToJSONSchema(propSchema)
+		}
+		result["properties"] = properties
+
+		// Add required fields
+		if len(schema.Required) > 0 {
+			result["required"] = schema.Required
+		}
+	}
+
+	// Handle array items
+	if schema.Type != nil && schema.Type.Includes(openapi3.TypeArray) && schema.Items != nil {
+		result["items"] = convertSchemaToJSONSchema(schema.Items)
+	}
+
+	// Add string constraints
+	if schema.Type != nil && schema.Type.Includes(openapi3.TypeString) {
+		if schema.MaxLength != nil {
+			result["maxLength"] = *schema.MaxLength
+		}
+		if schema.MinLength != 0 {
+			result["minLength"] = schema.MinLength
+		}
+		if schema.Pattern != "" {
+			result["pattern"] = schema.Pattern
+		}
+		if len(schema.Enum) > 0 {
+			result["enum"] = schema.Enum
+		}
+	}
+
+	// Add number constraints
+	if schema.Type != nil && (schema.Type.Includes(openapi3.TypeNumber) || schema.Type.Includes(openapi3.TypeInteger)) {
+		if schema.Max != nil {
+			result["maximum"] = *schema.Max
+		}
+		if schema.Min != nil {
+			result["minimum"] = *schema.Min
+		}
+		if schema.MultipleOf != nil {
+			result["multipleOf"] = *schema.MultipleOf
+		}
+	}
+
+	return result
 }
 
 func createObjectOption(schema *openapi3.SchemaRef, name string, baseOpts []mcp.PropertyOption, doc *openapi3.T) mcp.ToolOption {
