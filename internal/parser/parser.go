@@ -329,6 +329,9 @@ func (p *SwaggerParser) createRouteConfig(path, method string, operation *openap
 	}
 	routeConfig.Description = p.adjuster.GetDescription(routeConfig.Path, routeConfig.Method, desc)
 
+	// Check if this operation requires authentication based on security requirements
+	routeConfig.RequiresAuth = p.operationRequiresAuth(operation)
+
 	// Add operation-specific headers
 	if operation.Responses != nil {
 		// Get the first response's content type
@@ -356,4 +359,25 @@ func (p *SwaggerParser) createRouteConfig(path, method string, operation *openap
 	}
 
 	return routeConfig
+}
+
+// operationRequiresAuth determines if an operation requires authentication based on its security requirements
+func (p *SwaggerParser) operationRequiresAuth(operation *openapi3.Operation) bool {
+	// If the operation has security defined
+	if operation.Security != nil {
+		// If security is an empty array [], it explicitly allows no authentication
+		if len(*operation.Security) == 0 {
+			return false
+		}
+		// If security array has items, authentication is required
+		return true
+	}
+	
+	// If no operation-level security, check global security from the document
+	if p.doc.Security != nil && len(p.doc.Security) > 0 {
+		return true
+	}
+	
+	// No security requirements found
+	return false
 }

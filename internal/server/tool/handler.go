@@ -29,10 +29,10 @@ func NewHandler(authEnabled bool) *Handler {
 
 // CreateHandler creates a handler function for a specific tool.
 // It handles authentication validation and request execution.
-func (h *Handler) CreateHandler(tool *mcp.Tool, executor requester.RouteExecutor) func(context.Context, mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func (h *Handler) CreateHandler(tool *mcp.Tool, executor requester.RouteExecutor, routeConfig *requester.RouteConfig) func(context.Context, mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	return func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-		// Validate authentication if enabled
-		if h.auth != nil {
+		// Validate authentication only if this endpoint requires it AND global auth is enabled
+		if h.auth != nil && routeConfig.RequiresAuth {
 			authInfo, ok := ctx.Value(middleware.AuthContextKey).(*middleware.AuthInfo)
 			if !ok {
 				logger.Error("Failed to get auth info from context",
@@ -44,6 +44,20 @@ func (h *Handler) CreateHandler(tool *mcp.Tool, executor requester.RouteExecutor
 			logger.Debug("Authenticated tool call",
 				zap.String("tool", tool.Name),
 				zap.String("user", authInfo.UserID),
+			)
+		} else if routeConfig.RequiresAuth {
+			// Endpoint requires auth but global auth is disabled - this is a configuration issue
+			logger.Warn("Endpoint requires authentication but OAuth is disabled",
+				zap.String("tool", tool.Name),
+				zap.String("path", routeConfig.Path),
+				zap.String("method", routeConfig.Method),
+			)
+		} else {
+			// Endpoint does not require authentication - allow through
+			logger.Debug("Allowing unauthenticated tool call",
+				zap.String("tool", tool.Name),
+				zap.String("path", routeConfig.Path),
+				zap.String("method", routeConfig.Method),
 			)
 		}
 
