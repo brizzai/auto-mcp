@@ -12,7 +12,7 @@ require (
 	github.com/mark3labs/mcp-go v0.31.0
 	github.com/pterm/pterm v0.12.80
 	github.com/spf13/cobra v1.9.1
-	github.com/spf13/pflag v1.0.6
+	github.com/spf13/pflag v1.0.8
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/fx v1.24.0
