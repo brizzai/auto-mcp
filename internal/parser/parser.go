@@ -34,12 +34,24 @@ func (p *SwaggerParser) GetRouteTools() []*RouteTool {
 
 // generateTool creates an MCP tool from a route configuration
 func (p *SwaggerParser) generateTool(route *requester.RouteConfig) mcp.Tool {
-	// Create a tool name from the path and method
-	path := strings.TrimPrefix(route.Path, "/") // Remove leading slash
-	path = strings.ReplaceAll(path, "/", "_")
-	path = strings.ReplaceAll(path, "{", "")
-	path = strings.ReplaceAll(path, "}", "")
-	toolName := strings.ToLower(fmt.Sprintf("%s_%s", route.Method, path))
+	var toolName string
+
+	// Prefer operationId if available, otherwise generate from path and method
+	if route.OperationID != "" {
+		toolName = strings.ToLower(route.OperationID)
+	} else {
+		// Create a tool name from the path and method
+		path := strings.TrimPrefix(route.Path, "/") // Remove leading slash
+		path = strings.ReplaceAll(path, "/", "_")
+		path = strings.ReplaceAll(path, "{", "")
+		path = strings.ReplaceAll(path, "}", "")
+		toolName = strings.ToLower(fmt.Sprintf("%s_%s", route.Method, path))
+	}
+
+	// AWS Bedrock has a 64-character limit for tool names
+	if len(toolName) > 64 {
+		toolName = toolName[:64]
+	}
 
 	// Create tool options
 	opts := []mcp.ToolOption{
@@ -313,8 +325,9 @@ func (p *SwaggerParser) processOperations() error {
 // createRouteConfig creates a route configuration from a path and operation
 func (p *SwaggerParser) createRouteConfig(path, method string, operation *openapi3.Operation) *requester.RouteConfig {
 	routeConfig := &requester.RouteConfig{
-		Path:   path,
-		Method: method,
+		Path:        path,
+		Method:      method,
+		OperationID: operation.OperationID,
 		Headers: map[string]string{
 			"Content-Type": "application/json",
 		},

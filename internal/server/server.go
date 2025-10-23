@@ -11,6 +11,7 @@ import (
 	"github.com/brizzai/auto-mcp/internal/auth"
 	"github.com/brizzai/auto-mcp/internal/auth/providers"
 	"github.com/brizzai/auto-mcp/internal/config"
+	"github.com/brizzai/auto-mcp/internal/headerpassthrough"
 	"github.com/brizzai/auto-mcp/internal/logger"
 	"github.com/brizzai/auto-mcp/internal/parser"
 	"github.com/brizzai/auto-mcp/internal/requester"
@@ -130,17 +131,50 @@ func (s *Server) setupTools() error {
 	return nil
 }
 
+// createHeaderProcessor creates a header processor for context enrichment
+func (s *Server) createHeaderProcessor() *headerpassthrough.Processor {
+	if s.config.EndpointConfig.HeaderPassthrough == nil ||
+		!s.config.EndpointConfig.HeaderPassthrough.Enabled {
+		return nil
+	}
+
+	processor := headerpassthrough.NewProcessor(s.config.EndpointConfig.HeaderPassthrough)
+
+	logger.Info("Header passthrough enabled",
+		zap.Int("allowed_headers", len(s.config.EndpointConfig.HeaderPassthrough.AllowedHeaders)),
+		zap.Int("mappings", len(s.config.EndpointConfig.HeaderPassthrough.HeaderMapping)))
+
+	return processor
+}
+
 func (s *Server) ServeSSE(ctx context.Context) error {
 	logger.Info("Starting SSE server")
 
-	sseServer := mcpserver.NewSSEServer(s.mcp)
+	opts := []mcpserver.SSEOption{}
+	if processor := s.createHeaderProcessor(); processor != nil {
+		contextFunc := func(ctx context.Context, r *http.Request) context.Context {
+			return processor.ProcessHeaders(ctx, r)
+		}
+		opts = append(opts, mcpserver.WithSSEContextFunc(contextFunc))
+	}
+
+	sseServer := mcpserver.NewSSEServer(s.mcp, opts...)
 
 	return s.serveHTTP(ctx, sseServer, "SSE")
 }
 
 func (s *Server) ServeHTTP(ctx context.Context) error {
 	logger.Info("Starting HTTP server")
-	httpServer := mcpserver.NewStreamableHTTPServer(s.mcp)
+
+	opts := []mcpserver.StreamableHTTPOption{}
+	if processor := s.createHeaderProcessor(); processor != nil {
+		contextFunc := func(ctx context.Context, r *http.Request) context.Context {
+			return processor.ProcessHeaders(ctx, r)
+		}
+		opts = append(opts, mcpserver.WithHTTPContextFunc(contextFunc))
+	}
+
+	httpServer := mcpserver.NewStreamableHTTPServer(s.mcp, opts...)
 	return s.serveHTTP(ctx, httpServer, "HTTP")
 }
 

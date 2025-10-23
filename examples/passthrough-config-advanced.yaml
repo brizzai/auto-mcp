@@ -1,0 +1,81 @@
+# Advanced Header Passthrough Configuration Example
+# This configuration demonstrates all available options
+
+server:
+  port: 8080
+  host: "0.0.0.0"
+  mode: "sse"
+  name: "auto-mcp-server-advanced"
+  version: "1.0.0"
+
+logging:
+  level: "debug"
+  format: "json"
+
+endpoint:
+  base_url: "https://api.example.com"
+  
+  # Static auth as fallback
+  auth_type: "bearer"
+  auth_config:
+    token: "fallback_static_token"
+  
+  # Static headers (always sent)
+  headers:
+    X-API-Version: "v1"
+    User-Agent: "auto-mcp/1.0"
+  
+  # Header passthrough configuration
+  header_passthrough:
+    enabled: true
+    
+    # Whitelist of allowed headers
+    allowed_headers:
+      - "X-User-Auth-Cookie"
+      - "X-User-Bearer-Token"
+      - "X-Request-Id"
+      - "X-Correlation-Id"
+      - "X-Tenant-Id"
+    
+    # Header mapping and transformation
+    header_mapping:
+      # Map cookie header
+      - mcp_header: "X-User-Auth-Cookie"
+        rest_api_header: "Cookie"
+      
+      # Transform bearer token (add prefix)
+      - mcp_header: "X-User-Bearer-Token"
+        rest_api_header: "Authorization"
+        prefix: "Bearer "
+      
+      # Pass through without transformation
+      - mcp_header: "X-Request-Id"
+        rest_api_header: "X-Request-Id"
+      
+      - mcp_header: "X-Correlation-Id"
+        rest_api_header: "X-Correlation-Id"
+      
+      - mcp_header: "X-Tenant-Id"
+        rest_api_header: "X-Tenant-Id"
+    
+    # Security settings
+    security:
+      # Patterns for sensitive headers (won't log values)
+      sensitive_patterns:
+        - ".*[Aa]uth.*"
+        - ".*[Cc]ookie.*"
+        - ".*[Tt]oken.*"
+        - ".*[Ss]ecret.*"
+        - ".*[Kk]ey.*"
+      
+      # Enable sanitization (remove control chars, trim whitespace)
+      sanitize: true
+      
+      # Maximum header value length (truncates longer values)
+      max_header_value_length: 8192
+    
+    # Error handling strategy
+    # Options: "warn" (log and continue), "reject" (fail request), "fallback" (use static auth)
+    on_error: "fallback"
+
+swagger_file: "/path/to/swagger.json"

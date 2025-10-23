@@ -8,6 +8,7 @@ import (
 type RouteConfig struct {
 	Path        string            `json:"path"`
 	Method      string            `json:"method"`
+	OperationID string            `json:"operation_id,omitempty"`
 	Description string            `json:"description,omitempty"`
 	Headers     map[string]string `json:"headers"`
 	Parameters  map[string]string `json:"parameters"`

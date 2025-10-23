@@ -1,0 +1,44 @@
+# Minimal Header Passthrough Configuration Example
+# This configuration shows the simplest setup for forwarding user authentication headers
+
+server:
+  port: 8080
+  host: "0.0.0.0"
+  mode: "http"
+  name: "auto-mcp-server"
+  version: "1.0.0"
+
+logging:
+  level: "info"
+  format: "json"
+
+endpoint:
+  base_url: "https://api.example.com"
+  
+  # Static auth as fallback
+  auth_type: "bearer"
+  auth_config:
+    token: "fallback_static_token"
+  
+  # Header passthrough configuration
+  header_passthrough:
+    enabled: true
+    
+    # Only allow specific headers
+    allowed_headers:
+      - "X-User-Auth-Cookie"
+    
+    # Map MCP header to REST API header
+    header_mapping:
+      - mcp_header: "X-User-Auth-Cookie"
+        rest_api_header: "Cookie"
+    
+    # Security settings (uses defaults if not specified)
+    security:
+      sanitize: true
+      max_header_value_length: 8192
+    
+    # Error handling: fallback to static auth on errors
+    on_error: "fallback"
+
+swagger_file: "/path/to/swagger.json"
