@@ -42,10 +42,12 @@ const (
 )
 
 type EndpointConfig struct {
-	BaseURL    string            `json:"base_url" mapstructure:"base_url"`
-	AuthType   AuthType          `json:"auth_type" mapstructure:"auth_type"`
-	AuthConfig map[string]string `json:"auth_config" mapstructure:"auth_config"`
-	Headers    map[string]string `json:"headers" mapstructure:"headers"`
+	BaseURL           string                    `json:"base_url" mapstructure:"base_url"`
+	AuthType          AuthType                  `json:"auth_type" mapstructure:"auth_type"`
+	AuthConfig        map[string]string         `json:"auth_config" mapstructure:"auth_config"`
+	Headers           map[string]string         `json:"headers" mapstructure:"headers"`
+	HeaderPassthrough *HeaderPassthroughConfig  `json:"header_passthrough,omitempty" mapstructure:"header_passthrough"`
+	InsecureSkipVerify bool                     `json:"insecure_skip_verify" mapstructure:"insecure_skip_verify"`
 }
 
 type ServerMode string
@@ -82,6 +84,54 @@ type OAuthConfig struct {
 	ClientSecret string   `mapstructure:"client_secret"`
 	Scopes       []string `mapstructure:"scopes"`
 	AllowOrigins []string `mapstructure:"allow_origins"`
+}
+
+// HeaderPassthroughConfig configures per-request header forwarding
+type HeaderPassthroughConfig struct {
+	Enabled        bool                   `json:"enabled" mapstructure:"enabled"`
+	AllowedHeaders []string               `json:"allowed_headers" mapstructure:"allowed_headers"`
+	HeaderMapping  []HeaderMapping        `json:"header_mapping" mapstructure:"header_mapping"`
+	Security       HeaderSecurityConfig   `json:"security" mapstructure:"security"`
+	OnError        ErrorHandlingMode      `json:"on_error" mapstructure:"on_error"`
+}
+
+// HeaderMapping defines how to map and transform headers from MCP to REST API
+type HeaderMapping struct {
+	McpHeader     string `json:"mcp_header" mapstructure:"mcp_header"`
+	RestApiHeader string `json:"rest_api_header" mapstructure:"rest_api_header"`
+	Prefix        string `json:"prefix,omitempty" mapstructure:"prefix"`
+	Suffix        string `json:"suffix,omitempty" mapstructure:"suffix"`
+}
+
+// HeaderSecurityConfig defines security settings for header processing
+type HeaderSecurityConfig struct {
+	SensitivePatterns    []string `json:"sensitive_patterns" mapstructure:"sensitive_patterns"`
+	Sanitize             bool     `json:"sanitize" mapstructure:"sanitize"`
+	MaxHeaderValueLength int      `json:"max_header_value_length" mapstructure:"max_header_value_length"`
+}
+
+// ErrorHandlingMode defines how to handle header processing errors
+type ErrorHandlingMode string
+
+const (
+	ErrorHandlingWarn     ErrorHandlingMode = "warn"     // Log warning, continue without headers
+	ErrorHandlingReject   ErrorHandlingMode = "reject"   // Reject entire request
+	ErrorHandlingFallback ErrorHandlingMode = "fallback" // Fall back to static auth
+)
+
+// DefaultHeaderPassthroughConfig returns sensible defaults
+func DefaultHeaderPassthroughConfig() *HeaderPassthroughConfig {
+	return &HeaderPassthroughConfig{
+		Enabled:        false,
+		AllowedHeaders: []string{},
+		HeaderMapping:  []HeaderMapping{},
+		Security: HeaderSecurityConfig{
+			SensitivePatterns:    []string{".*[Aa]uth.*", ".*[Cc]ookie.*", ".*[Tt]oken.*", ".*[Ss]ecret.*", ".*[Kk]ey.*"},
+			Sanitize:             true,
+			MaxHeaderValueLength: 8192,
+		},
+		OnError: ErrorHandlingFallback,
+	}
 }
 
 // InitFlags initializes command line flags (without parsing)
@@ -130,6 +180,13 @@ func Load() (*Config, error) {
 	if err := viper.Unmarshal(&config); err != nil {
 		return nil, err
 	}
+
+	// Explicitly bind environment variables for fields that might not be in config files
+	// This ensures environment variables work even if the field is missing from YAML
+	if viper.IsSet("endpoint.insecure_skip_verify") {
+		config.EndpointConfig.InsecureSkipVerify = viper.GetBool("endpoint.insecure_skip_verify")
+	}
+
 	// Set server mode from flag
 	if mode := viper.GetString("mode"); mode != "" {
 		switch ServerMode(mode) {

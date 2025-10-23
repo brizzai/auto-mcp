@@ -2,6 +2,7 @@ package requester
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -30,9 +31,26 @@ type HTTPRequesterParams struct {
 
 // NewHTTPRequester creates a new HTTPRequester with default configuration
 func NewHTTPRequester(params HTTPRequesterParams) *HTTPRequester {
+	// Log the InsecureSkipVerify configuration
+	logger.Info("Creating HTTP requester",
+		zap.Bool("insecure_skip_verify", params.ServiceConfig.InsecureSkipVerify),
+		zap.String("base_url", params.ServiceConfig.BaseURL))
+
+	// Create transport with optional TLS skip verification
+	transport := &http.Transport{}
+	if params.ServiceConfig.InsecureSkipVerify {
+		logger.Info("TLS certificate verification disabled")
+		transport.TLSClientConfig = &tls.Config{
+			InsecureSkipVerify: true,
+		}
+	} else {
+		logger.Info("TLS certificate verification enabled")
+	}
+
 	return &HTTPRequester{
 		client: &http.Client{
-			Timeout: 30 * time.Second,
+			Timeout:   30 * time.Second,
+			Transport: transport,
 		},
 		serviceCfg: params.ServiceConfig,
 		authMgr:    params.AuthManager,

@@ -12,8 +12,11 @@ import (
 	"strings"
 
 	"github.com/brizzai/auto-mcp/internal/config"
+	"github.com/brizzai/auto-mcp/internal/headerpassthrough"
+	"github.com/brizzai/auto-mcp/internal/logger"
 
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 )
 
 // HTTPRequestBuilderParams holds the parameters for creating an HTTPRequestBuilder
@@ -59,13 +62,29 @@ func (b *HTTPRequestBuilder) BuildRequest(ctx context.Context, params map[string
 		return nil, fmt.Errorf("failed to create request body: %w", err)
 	}
 
-	// Merge headers
+	// Merge headers: static config < route config < passthrough (passthrough wins)
 	headers := make(map[string]string)
+	
+	// 1. Start with static headers from service config
 	for k, v := range b.serviceCfg.Headers {
 		headers[k] = v
 	}
+	
+	// 2. Override with route-specific headers
 	for k, v := range b.routeConfig.Headers {
 		headers[k] = v
+	}
+	
+	// 3. Apply passthrough headers (highest priority)
+	if passthroughHeaders := headerpassthrough.ExtractFromContext(ctx); passthroughHeaders != nil {
+		logger.Info("Passthrough headers extracted from context",
+			zap.Int("count", len(passthroughHeaders)),
+			zap.Any("headers", passthroughHeaders))
+		for k, v := range passthroughHeaders {
+			headers[k] = v
+		}
+	} else {
+		logger.Warn("No passthrough headers found in context")
 	}
 
 	// Create the HTTP request
@@ -75,6 +94,9 @@ func (b *HTTPRequestBuilder) BuildRequest(ctx context.Context, params map[string
 	}
 
 	// Add headers
+	logger.Info("Adding headers to HTTP request",
+		zap.Int("total_headers", len(headers)),
+		zap.Any("headers", headers))
 	for key, value := range headers {
 		httpReq.Header.Set(key, value)
 	}
