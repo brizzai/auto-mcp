@@ -61,13 +61,13 @@ Easily tailor your Swagger/OpenAPI file for optimal MCP integration. The MCP Con
 
 ## 📚 Use Cases
 
-1. **Rapid Prototyping:** Wrap any REST API as an MCP server in seconds—ideal for testing ideas or building AI tools fast.
+1. **Rapid Prototyping:** Wrap any REST API as an MCP server in seconds, ideal for testing ideas or building AI tools fast.
 
 2. **Bridge Legacy Services:** Expose legacy or internal systems as MCP endpoints without rewriting them.
 
 3. **Access Any 3rd-Party API from Chat Applications:** Turn any third-party API into an MCP tool, making it accessible to AI assistants like Claude.
 
-4. **Minimal Proxy Tools:** Use auto-mcp to proxy APIs that already handle validation and logic—no wrappers needed.
+4. **Minimal Proxy Tools:** Use auto-mcp to proxy APIs that already handle validation and logic, no wrappers needed.
 
 ---
 
@@ -86,7 +86,7 @@ Add the following snippet to your **Claude Desktop** configuration (⟂ _Setting
         "--rm",
         "-v",
         "/Users/you/path/to/swagger.json:/server/swagger.json",
-        "ghcr.io/brizzai/auto-mcp:latest"
+        "ghcr.io/brizzai/auto-mcp:latest",
         "--swagger-file=/server/swagger.json"
       ]
     }
@@ -165,8 +165,7 @@ docker run --rm -i \
 
 This setup allows you to easily test and modify the Petshop demo configuration.
 
-See [docs/CONFIGURATION.md](docs/
-CONFIGURATION.md) for all config options
+See [CONFIGURATION.md](docs/CONFIGURATION.md) for all config options
 and environment variable overrides.
 
 ## 🤝 Contributing
@@ -178,3 +177,5 @@ For detailed contribution guidelines, please see [CONTRIBUTING.md](.github/CONTR
 ## 📄 License
 
 Distributed under the Apache License 2.0 License. See [`LICENSE`](LICENSE) for details.
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.

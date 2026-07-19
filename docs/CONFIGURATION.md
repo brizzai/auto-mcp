@@ -62,7 +62,7 @@ docker run --rm -i \
 
 ## 📝 Mounting and Overwriting `config.yaml` (Full Configuration)
 
-Instead of passing individual CLI flags or environment variables, you can mount a complete `config.yaml` into the container to control all aspects of Auto MCP—including the Swagger and adjustment files, server mode, logging, authentication, and OAuth settings.
+Instead of passing individual CLI flags or environment variables, you can mount a complete `config.yaml` into the container to control all aspects of Auto MCP, including the Swagger and adjustment files, server mode, logging, authentication, and OAuth settings.
 
 **Recommended for production or reproducible deployments.**
 
@@ -134,3 +134,32 @@ oauth:
 swagger_file: "/config/swagger.json" # Path to OpenAPI/Swagger file
 adjustments_file: "/config/adjustment.yaml" # Path to adjustments file
 ```
+
+### Xquik API Example
+
+Xquik publishes an OpenAPI document for X/Twitter read, write, monitor,
+webhook, and automation workflows. To expose it through Auto MCP, download the
+spec into the mounted config directory and point Auto MCP at it:
+
+```bash
+curl -fsSL https://xquik.com/openapi.yaml -o ./config/xquik-openapi.yaml
+```
+
+```yaml
+endpoint:
+  base_url: "https://xquik.com"
+  auth_type: "api_key"
+  auth_config:
+    key: "replace_with_xquik_api_key"
+    header: "X-API-Key"
+
+swagger_file: "/config/xquik-openapi.yaml"
+```
+
+The schema paths already include `/api/v1`. Keep `base_url` at the server origin.
+
+Keep real keys out of committed config files. In environments where you load
+configuration from variables, set `AUTO_MCP_ENDPOINT_AUTH_CONFIG_KEY` to the
+Xquik API key instead.
+
+Xquik is an independent third-party service. Not affiliated with X Corp. "Twitter" and "X" are trademarks of X Corp.
